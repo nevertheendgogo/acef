@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.huangchao.acef.dao.DataMapper">
+
+    <!--***********************************************************************  增 *************************************************************************************-->
+
+    <!--保存轮播图或协会介绍数据到数据库-->
+    <insert id="uploadPicture">
+        insert into picture values
+        <foreach collection="imgPaths" item="url" separator=",">
+            (default,#{part},#{url},default)
+        </foreach>
+    </insert>
+
+    <!--//富文本海报保存-->
+    <insert id="addRichTextPoster">
+        insert into rich_text_poster values (default,#{articleId},#{posterUrl})
+    </insert>
+
+    <!--//富文本图片保存-->
+    <insert id="addRichTextPicture">
+        insert into rich_text_picture values (default,#{articleId},#{url})
+    </insert>
+
+ <!--活动文章保存-->
+    <insert id="uploadActivityArticle">
+        insert into activityArticle values (#{articleId},#{language},#{title},#{author},#{displayTime},#{activityStartTime},#{activityEndTime},#{entryFormUrl},#{content})
+    </insert>
+
+    <!--保存用户信息-->
+    <insert id="addUser">
+        insert into user values(default,#{emailAccount},#{password},#{userName},#{phone},#{status}, default,default)
+    </insert>
+
+    <!--***************************************************************************  删  *********************************************************************************-->
+
+    <!--删除轮播图-->
+    <delete id="deleteSlideshow">
+        delete from picture where id =#{id}
+    </delete>
+
+    <!--删除中断富文本文章上传的图片-->
+    <delete id="deleteRichTextPicture">
+        delete from rich_text_picture where articleId =#{articleId}
+    </delete>
+    <!--***************************************************************************  查  *********************************************************************************-->
+
+    <!--获取活动文章-->
+    <select id="getActivityArticle" resultType="ActivityArticle">
+        select articleId from activityArticle left join rich_text_poster
+    </select>
+
+    <!--判断articleId是否已经存在，即此文章是否已经上传-->
+    <select id="existArticleId" resultType="String">
+        select articleId from activityArticle where articleId=#{articleId}
+    </select>
+
+    <!--查找富文本文章上传的图片-->
+    <select id="getRiceTextPictures" resultType="String">
+        select url from rich_text_picture where articleId=#{articleId}
+    </select>
+
+    <!--轮播图/协会介绍链接获取-->
+    <select id="getPicture" resultType="Slideshow">
+        select id,url from picture where part=#{part}
+    </select>
+    <!--查找用户-->
+    <select id="findUserByEmailAccount" resultType="User">
+        select * from user where emailAccount = #{emailAccount}
+    </select>
+    <!--查找用户-->
+    <select id="findUserById" resultType="User">
+        select * from user where id = #{id}
+    </select>
+    <!--查找用户id-->
+    <select id="findIdByEmailAccount" resultType="String">
+        select id from user where emailAccount = #{emailAccount}
+    </select>
+    <!--***************************************************************************  改  *********************************************************************************-->
+    <!--更新协会介绍图片-->
+    <update id="updateAssociationIntroduction">
+        update picture set url=#{url} where id=#{id}
+    </update>
+
+</mapper>
