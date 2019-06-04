@@ -1,7 +1,6 @@
 create database acef;
 use acef;
 
-select * from activityArticle left join rich_text_poster on activityArticle.articleId=rich_text_poster.articleId;
 #富文本图片
 create table rich_text_picture(
 	`id` bigint(10) primary key auto_increment comment'自增id',

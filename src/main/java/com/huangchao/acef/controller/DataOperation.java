@@ -50,6 +50,7 @@ public class DataOperation {
             dataService.uploadSlideshowOrAssociationIntroduction(slideshows, part, id, url);
             result.put("result", "1");
         } catch (IOException e) {
+            logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n轮播图或协会介绍图上传出错\n" + e);
             e.printStackTrace();
             result.put("result", "0");
             //回滚
@@ -58,14 +59,14 @@ public class DataOperation {
         return result;
     }
 
-    //轮播图/协会介绍链接获取
+    //轮播图或协会介绍链接获取
     @RequestMapping("/gp")
     @ResponseBody
     public List<Slideshow> getPicture(String part) {
-        logger.info("logbackinfo 成功了");
         try {
             return dataService.getPicture(part);
         } catch (Exception e) {
+            logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n轮播图或协会介绍链接获取\n" + e);
             e.printStackTrace();
         }
         return null;
@@ -83,6 +84,7 @@ public class DataOperation {
             dataService.deleteSlideshow(id, url);
             result.put("result", "1");
         } catch (Exception e) {
+            logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n轮播图删除\n" + e);
             e.printStackTrace();
             result.put("result", "0");
             //回滚
@@ -94,20 +96,24 @@ public class DataOperation {
     //富文本(rice text)图片上传
     @RequestMapping("/urtp")
     @ResponseBody                                                           //文章id
+    @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> uploadRiceTextPicture(MultipartFile picture, String articleId, HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> result = new HashMap<>();
 
         String url;
-        if (!picture.isEmpty() && articleId != null && !articleId.equals("")) {
+
+        if (picture != null && !picture.isEmpty() && articleId != null && !articleId.equals("")) {
             try {
                 url = dataService.uploadRiceTextPicture(picture, articleId, request, response);
                 result.put("articleId", articleId);
                 result.put("url", url);
             } catch (IOException e) {
+                logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n富文本图片上传\n" + e);
                 e.printStackTrace();
+                //回滚
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             }
         }
-
         return result;
     }
 
@@ -128,6 +134,7 @@ public class DataOperation {
                 dataService.uploadActivityArticle(aa, activityTime, entryForm, poster, request, response);
                 result.put("result", "1");
             } catch (IOException e) {
+                logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n活动文章上传\n" + e);
                 e.printStackTrace();
                 //回滚
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -137,28 +144,51 @@ public class DataOperation {
     }
 
     //根据文章id删除活动文章
-    @RequestMapping("/daa")
+    @RequestMapping("/daa/{articleId}")
     @ResponseBody
-    public Map<String, String> deleteActivityArticle(String articleId) {
+    @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
+    public Map<String, String> deleteActivityArticle(@PathVariable(value = "articleId") String articleId) {
         Map<String, String> result = new HashMap<>();
         try {
             dataService.deleteActivityArticle(articleId);
             result.put("result", "1");
         } catch (Exception e) {
+            logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n根据文章id删除活动文章\n" + e);
             e.printStackTrace();
             result.put("result", "0");
+            //回滚
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
         return result;
     }
 
-    //根据用户设置语言获取活动文章
+    //根据文章id获取活动文章
+    @RequestMapping("/gaa/{articleId}")
+    @ResponseBody
+    public ActivityArticle getOneActivityArticle(@PathVariable(value = "articleId") String articleId) {
+        //获取用户设置的语言
+        try {
+            return dataService.getOneActivityArticle(articleId);
+        } catch (Exception e) {
+            logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n根据文章id获取活动文章\n" + e);
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    //根据用户设置语言批量获取活动文章
     @RequestMapping("/gaa/{currentPage}/{pageSize}")
     @ResponseBody                               //当前页号                                                一页的数据量
     public List<ActivityArticle> getActivityArticle(@PathVariable(value = "currentPage") int currentPage, @PathVariable(value = "pageSize") int pageSize, HttpServletRequest request) {
         //获取用户设置的语言
         String language = getLanguage(request);
-        return dataService.getActivityArticle(language != null ? language : defaultLanguage, currentPage, pageSize);
+        try {
+            return dataService.getActivityArticle(language != null ? language : defaultLanguage, currentPage, pageSize);
+        } catch (Exception e) {
+            logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n根据用户设置语言批量获取活动文章\n" + e);
+            e.printStackTrace();
+            return null;
+        }
     }
-
 }
 

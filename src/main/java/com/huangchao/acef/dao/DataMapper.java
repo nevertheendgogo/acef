@@ -19,8 +19,6 @@ public interface DataMapper {
     //保存用户账号密码
     void addUser(User user);
 
-    //保存页面展示数据
-    void addData(FormData formData);
 
     //保存用户反馈信息
     void setFeedback(Feedback feedback);
@@ -67,4 +65,6 @@ public interface DataMapper {
     //根据文章id删除活动文章
     void deleteActivityArticle(String articleId);
 
+    //根据用户设置语言和文章id获取活动文章
+    ActivityArticle getOneActivityArticle(String articleId);
 }

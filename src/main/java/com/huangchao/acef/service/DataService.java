@@ -2,12 +2,12 @@ package com.huangchao.acef.service;
 
 import com.huangchao.acef.dao.DataMapper;
 import com.huangchao.acef.entity.ActivityArticle;
-import com.huangchao.acef.entity.FormData;
 import com.huangchao.acef.entity.Slideshow;
 import com.huangchao.acef.utils.CookieUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Cookie;
@@ -52,12 +52,8 @@ public class DataService {
     @Value("${entryFormPath}")
     String entryFormPath;
 
-    //保存页面展示数据
-    public void addData(FormData formData) {
-        mapper.addData(formData);
-    }
 
-    //保存轮播图或协会介绍数据到数据库
+    //保存轮播图链接或协会介绍图片链接数据到数据库
     public void uploadPicture(List<String> imgPaths, String part) {
         mapper.uploadPicture(imgPaths, part);
     }
@@ -67,7 +63,7 @@ public class DataService {
         mapper.updateAssociationIntroduction(url, part, id);
     }
 
-    //轮播图/协会介绍链接获取
+    //轮播图或协会介绍图片链接获取
     public List<Slideshow> getPicture(String part) {
         List<Slideshow> slideshowList = mapper.getPicture(part);
         for (Slideshow s : slideshowList) {
@@ -78,12 +74,13 @@ public class DataService {
 
     //    轮播图删除
     public void deleteSlideshow(int id, String url) throws IOException {
+        //删除数据库数据
+        mapper.deleteSlideshow(id);
         //删除图片
         deletePreviousPicture(url, filePath, imgPath);
-        mapper.deleteSlideshow(id);
     }
 
-    //保存富文本上传的图片
+    //保存富文本上传的图片链接
     public void addRichTextPicture(String articleId, String url) {
         mapper.addRichTextPicture(articleId, url);
     }
@@ -122,17 +119,23 @@ public class DataService {
 
     //根据文章id删除活动文章
     public void deleteActivityArticle(String articleId) throws IOException {
-        //删除图片
+        //删除文章中的图片
         String[] imgPaths = mapper.getRiceTextPictures(articleId);
         if (imgPaths != null) {
-            for (String imgPath : imgPaths) {
+            for (String imgUrl : imgPaths) {
                 //删除图片
-                deletePreviousPicture(imgPath, filePath, imgPath);
+                deletePreviousPicture(imgUrl, filePath, imgPath + activityArticleImgPath);
             }
         }
-        //删除数据库存储的内容，包括图片链接
+        //删除海报图片
+        deletePreviousPicture(mapper.getOneActivityArticle(articleId).getPosterUrl(), filePath, imgPath + activityArticleImgPath);
+        //删除报名表
+        deletePreviousPicture(mapper.getOneActivityArticle(articleId).getEntryFormUrl(), filePath, entryFormPath);
+        //删除数据库存储的文章内容
         mapper.deleteActivityArticle(articleId);
-    }
+        //删除数据库中保存的图片链接
+        mapper.deleteRichTextPicture(articleId);
+    }/**/
 
     //轮播图或协会介绍图上传
     public void uploadSlideshowOrAssociationIntroduction(MultipartFile[] slideshows, String part, Integer id, String url) throws IOException {
@@ -157,10 +160,7 @@ public class DataService {
         if (url != null && !url.equals("")) {
             deletePreviousPicture(url, filePath, imgPath);
             //保存协会介绍数据到数据库
-            System.out.println(imgPaths.size());
-            for (String p : imgPaths) {
-                System.out.println(p);
-            }
+
             updateAssociationIntroduction(imgPaths.get(0), part, id);
         } else
             //保存轮播图或协会介绍数据到数据库
@@ -185,13 +185,14 @@ public class DataService {
 
         //若id为articleId的cookie不为空且和当前文章id不同，则认为上次文章上传中断
         if (cookie != null && !cookie.getValue().equals(articleId)) {
+            //删除数据库对应数据
+            deleteRichTextPicture(cookie.getValue());
+
             String[] riceTextPictures = getRiceTextPictures(cookie.getValue() + "");
             for (int i = 0; i < riceTextPictures.length; i++) {
                 //删除图片
                 deletePreviousPicture(riceTextPictures[i], filePath, imgPath + activityArticleImgPath);
             }
-            //删除数据库对应数据
-            deleteRichTextPicture(cookie.getValue());
         }
         CookieUtil.saveCookie("articleId", articleId, response, survivalTime * 3);
 
@@ -199,7 +200,7 @@ public class DataService {
         addRichTextPicture(articleId, url);
         //保存图片到指定文件夹,可能出现io异常
         picture.transferTo(new File(filePath + imgPath + activityArticleImgPath + fileName));
-        return "http://" + IpAddress +url;
+        return "http://" + IpAddress + url;
     }
 
     //活动文章上传
@@ -213,7 +214,7 @@ public class DataService {
         }
 
         //报名表处理
-        if (!entryForm.isEmpty()) {
+        if (entryForm != null && !entryForm.isEmpty()) {
             //获取报名表名
             String fileName = aa.getActivityStartTime() + "~" + entryForm.getOriginalFilename();
             //设置报名表映射路径
@@ -223,7 +224,7 @@ public class DataService {
         }
 
         //海报处理
-        if (!poster.isEmpty()) {
+        if (poster != null && !poster.isEmpty()) {
             //获取文件名
             String fileName = poster.getOriginalFilename();
             //获取文件后缀名
@@ -232,8 +233,6 @@ public class DataService {
             fileName = UUID.randomUUID() + suffixName;
             //设置海报映射路径
             aa.setPosterUrl(mapPath + imgPath + activityArticleImgPath + fileName);
-            //将活动信息数据存进数据库
-            addActivityArticle(aa);
             //保存图片到指定文件夹,可能出现io异常
             poster.transferTo(new File(filePath + imgPath + activityArticleImgPath + fileName));
 
@@ -244,5 +243,13 @@ public class DataService {
             if (cookie != null && cookie.getValue().equals(aa.getArticleId()))
                 CookieUtil.saveCookie("articleId", aa.getArticleId(), response, 0);
         }
+        //将活动信息数据存进数据库
+        addActivityArticle(aa);
+
+    }
+
+    //根据用户设置语言和文章id获取活动文章
+    public ActivityArticle getOneActivityArticle(String articleId) {
+        return mapper.getOneActivityArticle(articleId);
     }
 }

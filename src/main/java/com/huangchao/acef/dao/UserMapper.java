@@ -16,16 +16,10 @@ public interface UserMapper {
     //保存用户账号密码
     void  addUser(User user);
 
-    //保存页面展示数据
-    void  addData(FormData formData);
+
     //保存用户反馈信息
     void setFeedback(Feedback feedback);
-//    //查找页面展示数据（法语）
-//    GetData findFrenchDataByPart(String part);
-//    //查找页面展示数据英语（）
-//    GetData  findEnglishDataByPart(String part);
-//    //查找页面展示数据（中文）
-//    GetData findChineseDataByPart(String part);
+
     //意见反馈信息获取接口
     List<Feedback> getFeedback();
 

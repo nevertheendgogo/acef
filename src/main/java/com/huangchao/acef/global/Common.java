@@ -10,16 +10,14 @@ import java.io.IOException;
 
 public class Common {
 
-
+                                            //图片映射路径  文件存放根路径  文件存放目录
     public static void deletePreviousPicture(String url,String filePath,String imgPath) throws IOException {
         if (url != null) {
-            System.out.println(url);
             int i = url.lastIndexOf("/") + 1;
             //获取图片名
             String fileName = url.substring(i);
             //打开文件流
             File file = new File(filePath + imgPath + fileName);
-            System.out.println(filePath + imgPath + fileName);
             //如果图片存在则删除
             if (file.exists())
                 file.delete();
