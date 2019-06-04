@@ -22,7 +22,7 @@
     </insert>
 
     <!--活动文章保存-->
-    <insert id="uploadActivityArticle">
+    <insert id="addActivityArticle">
         insert into activityArticle values (#{articleId},#{language},#{title},#{author},#{displayTime},#{activityStartTime},#{activityEndTime},#{entryFormUrl},#{posterUrl},#{content})
     </insert>
 
@@ -32,6 +32,12 @@
     </insert>
 
     <!--***************************************************************************  删  *********************************************************************************-->
+
+    <!--根据文章id删除活动文章-->
+    <delete id="deleteActivityArticle">
+        delete from activityArticle where articleId =#{articleId};
+        delete from rich_text_picture where articleId =#{articleId};
+    </delete>
 
     <!--删除轮播图-->
     <delete id="deleteSlideshow">

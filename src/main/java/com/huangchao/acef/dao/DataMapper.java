@@ -63,4 +63,8 @@ public interface DataMapper {
 
     //获取活动文章
     List<ActivityArticle> getActivityArticle(String language, int currentPage, int pageSize);
+
+    //根据文章id删除活动文章
+    void deleteActivityArticle(String articleId);
+
 }
