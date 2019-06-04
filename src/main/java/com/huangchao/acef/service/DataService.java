@@ -90,7 +90,7 @@ public class DataService {
 
     //活动文章保存
     public void addActivityArticle(ActivityArticle aa) {
-        mapper.uploadActivityArticle(aa);
+        mapper.addActivityArticle(aa);
     }
 
     //删除中断富文本文章上传的图片

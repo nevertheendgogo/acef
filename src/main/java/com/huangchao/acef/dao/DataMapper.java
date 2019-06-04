@@ -50,7 +50,7 @@ public interface DataMapper {
     void addRichTextPicture(String articleId, String url);
 
     //活动文章保存
-    void uploadActivityArticle(ActivityArticle aa);
+    void addActivityArticle(ActivityArticle aa);
 
     //删除中断富文本文章上传的图片
     void deleteRichTextPicture(String articleId);
