@@ -109,3 +109,4 @@ public class ActivityArticle {
     public ActivityArticle() {
     }
 }
+

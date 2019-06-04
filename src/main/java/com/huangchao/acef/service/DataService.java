@@ -1,5 +1,8 @@
 package com.huangchao.acef.service;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.huangchao.acef.dao.DataMapper;
 import com.huangchao.acef.entity.ActivityArticle;
 import com.huangchao.acef.entity.Slideshow;
@@ -7,7 +10,6 @@ import com.huangchao.acef.utils.CookieUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Cookie;
@@ -16,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -106,36 +109,45 @@ public class DataService {
     }
 
     //获取活动文章
-    public List<ActivityArticle> getActivityArticle(String language, int currentPage, int pageSize) {
+    public PageInfo<ActivityArticle> getActivityArticle(String language, int currentPage, int pageSize) {
 
-        List<ActivityArticle> activityArticleList = mapper.getActivityArticle(language, currentPage, pageSize);
+        if (language.equals("all"))
+            language = null;
+        //对数据库的操作必须在此定义的下一条语句执行，且只有一条语句有分页效果，若要多条语句都有分页效果，需写多条本语句
+        Page<?> page = PageHelper.startPage(currentPage, pageSize);
+        List<ActivityArticle> activityArticleList = mapper.getActivityArticle(language);
         //使路径完整
-        for (ActivityArticle s : activityArticleList) {
-            s.setEntryFormUrl("http://" + IpAddress + s.getEntryFormUrl());
-            s.setPosterUrl("http://" + IpAddress + s.getPosterUrl());
-        }
-        return activityArticleList;
+        if (language != null)
+            for (ActivityArticle s : activityArticleList) {
+                s.setEntryFormUrl("http://" + IpAddress + s.getEntryFormUrl());
+                s.setPosterUrl("http://" + IpAddress + s.getPosterUrl());
+            }
+        //用PageInfo对结果进行包装
+        PageInfo<ActivityArticle> pageInfo = (PageInfo<ActivityArticle>) page.toPageInfo();
+        return pageInfo;
     }
 
     //根据文章id删除活动文章
-    public void deleteActivityArticle(String articleId) throws IOException {
-        //删除文章中的图片
-        String[] imgPaths = mapper.getRiceTextPictures(articleId);
-        if (imgPaths != null) {
-            for (String imgUrl : imgPaths) {
-                //删除图片
-                deletePreviousPicture(imgUrl, filePath, imgPath + activityArticleImgPath);
+    public void deleteActivityArticle(String[] articleId) throws IOException {
+        for (int i = 0; i < articleId.length; i++) {
+            //删除文章中的图片
+            String[] imgPaths = mapper.getRiceTextPictures(articleId[i]);
+            if (imgPaths != null) {
+                for (String imgUrl : imgPaths) {
+                    //删除图片
+                    deletePreviousPicture(imgUrl, filePath, imgPath + activityArticleImgPath);
+                }
             }
+            //删除海报图片
+            deletePreviousPicture(mapper.getOneActivityArticle(articleId[i]).getPosterUrl(), filePath, imgPath + activityArticleImgPath);
+            //删除报名表
+            deletePreviousPicture(mapper.getOneActivityArticle(articleId[i]).getEntryFormUrl(), filePath, entryFormPath);
+            //删除数据库存储的文章内容
+            mapper.deleteActivityArticle(articleId[i]);
+            //删除数据库中保存的图片链接
+            mapper.deleteRichTextPicture(articleId[i]);
         }
-        //删除海报图片
-        deletePreviousPicture(mapper.getOneActivityArticle(articleId).getPosterUrl(), filePath, imgPath + activityArticleImgPath);
-        //删除报名表
-        deletePreviousPicture(mapper.getOneActivityArticle(articleId).getEntryFormUrl(), filePath, entryFormPath);
-        //删除数据库存储的文章内容
-        mapper.deleteActivityArticle(articleId);
-        //删除数据库中保存的图片链接
-        mapper.deleteRichTextPicture(articleId);
-    }/**/
+    }
 
     //轮播图或协会介绍图上传
     public void uploadSlideshowOrAssociationIntroduction(MultipartFile[] slideshows, String part, Integer id, String url) throws IOException {
@@ -205,6 +217,34 @@ public class DataService {
 
     //活动文章上传
     public void uploadActivityArticle(ActivityArticle aa, String[] activityTime, MultipartFile entryForm, MultipartFile poster, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        //活动信息处理
+        aa=activityArticleDispose(aa, activityTime, entryForm, poster, request, response);
+        //将活动信息数据存进数据库
+        addActivityArticle(aa);
+
+    }
+
+    //活动文章修改
+    public void changeActivityArticle(ActivityArticle aa, String[] activityTime, MultipartFile entryForm, MultipartFile poster, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        //查找文章id对应的所有文章信息
+        ActivityArticle activityArticle = mapper.getOneActivityArticle(aa.getArticleId());
+        //如果原来的文章有报名表则将之删除
+        if (activityArticle.getEntryFormUrl() != null && !activityArticle.getEntryFormUrl().equals("")) {
+            deletePreviousPicture(activityArticle.getEntryFormUrl(), filePath, entryFormPath);
+        }
+        //如果原来的文章有海报表则将之删除
+        if (activityArticle.getPosterUrl() != null && !activityArticle.getPosterUrl().equals("")) {
+            deletePreviousPicture(activityArticle.getPosterUrl(), filePath, imgPath + activityArticleImgPath);
+        }
+        //活动信息处理
+        aa=activityArticleDispose(aa, activityTime, entryForm, poster, request, response);
+
+        //将修改后活动信息数据存进数据库
+        mapper.changeActivityArticle(aa);
+
+    }
+
+    private ActivityArticle activityArticleDispose(ActivityArticle aa, String[] activityTime, MultipartFile entryForm, MultipartFile poster, HttpServletRequest request, HttpServletResponse response) throws IOException {
         //设置活动开始和结束时间
         if (activityTime != null) {
             if (!activityTime[0].equals(""))
@@ -216,12 +256,13 @@ public class DataService {
         //报名表处理
         if (entryForm != null && !entryForm.isEmpty()) {
             //获取报名表名
-            String fileName = aa.getActivityStartTime() + "~" + entryForm.getOriginalFilename();
+            String fileName = aa.getActivityStartTime() + new Date().getTime() + "~" + entryForm.getOriginalFilename();
             //设置报名表映射路径
             aa.setEntryFormUrl(mapPath + entryFormPath + fileName);
             //保存图片到指定文件夹,可能出现io异常
             entryForm.transferTo(new File(filePath + entryFormPath + fileName));
         }
+
 
         //海报处理
         if (poster != null && !poster.isEmpty()) {
@@ -243,13 +284,13 @@ public class DataService {
             if (cookie != null && cookie.getValue().equals(aa.getArticleId()))
                 CookieUtil.saveCookie("articleId", aa.getArticleId(), response, 0);
         }
-        //将活动信息数据存进数据库
-        addActivityArticle(aa);
-
+        return aa;
     }
 
-    //根据用户设置语言和文章id获取活动文章
+    //根据文章id获取活动文章
     public ActivityArticle getOneActivityArticle(String articleId) {
         return mapper.getOneActivityArticle(articleId);
     }
+
+
 }

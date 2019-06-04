@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Cookie;
@@ -74,7 +72,7 @@ public class UserOperation {
     /*********************************************************** 成员信息 *********************************************************************/
 
     //成员信息上传
-    @RequestMapping("/mis")
+    @RequestMapping(value = "/mis", method = RequestMethod.POST)
     @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, Object> memberIntroductionSave(MemberIntroduction memberIntroduction, MultipartFile picture) {
@@ -101,32 +99,29 @@ public class UserOperation {
     }
 
     //前端展示成员信息获取
-    @RequestMapping("/pgami/{currentPage}/{pageSize}")
-    @ResponseBody
-    public PageInfo<GetMemberIntroduction> getAllShowMemberIntroduction(
-            //当前页号                                                一页的数据量
-            @PathVariable(value = "currentPage") int currentPage, @PathVariable(value = "pageSize") int pageSize, HttpServletRequest request) {
+    @RequestMapping(value = "/pgami",method = RequestMethod.GET)
+    @ResponseBody                                                            //当前页号  一页的数据量
+    public PageInfo<GetMemberIntroduction> getAllShowMemberIntroduction(int currentPage, int pageSize, HttpServletRequest request) {
         String language = getLanguage(request);
         return userService.getAllShowMemberIntroduction(language != null ? language : defaultLanguage, currentPage, pageSize);
     }
 
     //后台管理展示成员信息获取
-    @RequestMapping("/bgami/{currentPage}/{pageSize}")
-    @ResponseBody
-    //当前页号                                                一页的数据量
-    public PageInfo<MemberIntroduction> getAllManageMemberIntroduction(@PathVariable(value = "currentPage") int currentPage, @PathVariable(value = "pageSize") int pageSize) {
+    @RequestMapping(value = "/bgami",method = RequestMethod.GET)
+    @ResponseBody                                                           //当前页号   一页的数据量
+    public PageInfo<MemberIntroduction> getAllManageMemberIntroduction(int currentPage, int pageSize) {
         return userService.getAllManageMemberIntroduction(currentPage, pageSize);
     }
 
     //后台管理单个成员信息获取
-    @RequestMapping("/bgomi/{id}")
+    @RequestMapping(value = "/bgomi",method = RequestMethod.GET)
     @ResponseBody
-    public MemberIntroduction getOneManageMemberIntroduction(@PathVariable(value = "id") int id) {
+    public MemberIntroduction getOneManageMemberIntroduction(int id) {
         return userService.getOneManageMemberIntroduction(id);
     }
 
     //后台管理成员信息删除
-    @RequestMapping("/bdmi")
+    @RequestMapping(value = "/bdmi",method = RequestMethod.DELETE)
     @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> deleteMemberIntroduction(int[] idList, String[] imgPaths) {
@@ -139,7 +134,7 @@ public class UserOperation {
             if (imgPaths != null) {
                 for (String s : imgPaths) {
                     //删除图片
-                    Common.deletePreviousPicture(s,filePath,imgPath);
+                    Common.deletePreviousPicture(s, filePath, imgPath);
                 }
             }
 
@@ -154,7 +149,7 @@ public class UserOperation {
     }
 
     //后台管理成员信息修改
-    @RequestMapping("/bcmi")
+    @RequestMapping(value = "/bcmi",method = RequestMethod.PUT)
     @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> changeMemberIntroduction(MemberIntroduction memberIntroduction, MultipartFile picture) {
@@ -164,7 +159,7 @@ public class UserOperation {
             //若重新上传了图片
             if (picture != null && !picture.isEmpty()) {
                 //删除图片
-                Common.deletePreviousPicture(memberIntroduction.getImgPath(),filePath,imgPath);
+                Common.deletePreviousPicture(memberIntroduction.getImgPath(), filePath, imgPath);
                 //图片处理
                 memberIntroduction = pictureDispose(memberIntroduction, picture);
 
@@ -202,7 +197,7 @@ public class UserOperation {
 
     /*********************************************************** 意见反馈 *********************************************************************/
     //意见反馈上传接口
-    @RequestMapping("/fb")
+    @RequestMapping(value = "/fb",method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> setFeedback(Feedback feedback) {
         //用于保存保存结果
@@ -219,15 +214,15 @@ public class UserOperation {
     }
 
     //意见反馈信息获取接口
-    @RequestMapping("/gfb/{currentPage}/{pageSize}")
+    @RequestMapping(value = "/gfb",method = RequestMethod.GET)
     @ResponseBody
-    public PageInfo<Feedback> getFeedback(@PathVariable(value = "currentPage") int currentPage, @PathVariable(value = "pageSize") int pageSize) {
+    public PageInfo<Feedback> getFeedback(int currentPage, int pageSize) {
         return userService.getFeedback(currentPage, pageSize);
 
     }
 
     //后台意见反馈信息批量删除
-    @RequestMapping("/bdfb")
+    @RequestMapping(value = "/bdfb",method = RequestMethod.DELETE)
     @ResponseBody
     public Map<String, String> deleteFeedback(int[] idList) {
         //用于返回结果
@@ -244,7 +239,7 @@ public class UserOperation {
 
     /******************************************************** 登录 ************************************************************************/
     //登录状态查询
-    @RequestMapping("/isLogin")
+    @GetMapping(value = "/isLogin")
     @ResponseBody
     public Map<String, String> isLogin(HttpServletRequest request) {
         //用于返回查询结果,成功则返回1和昵称
@@ -282,7 +277,7 @@ public class UserOperation {
     }
 
     //管理员登陆
-    @RequestMapping("/login")
+    @GetMapping(value = "/login")
     @ResponseBody
     public Map<String, String> login(User user, HttpServletRequest request, HttpServletResponse response) {
         //用于返回登录结果

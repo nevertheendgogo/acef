@@ -1,6 +1,7 @@
 package com.huangchao.acef.dao;
 
 import com.huangchao.acef.entity.*;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -60,11 +61,14 @@ public interface DataMapper {
     String existArticleId(String articleId);
 
     //获取活动文章
-    List<ActivityArticle> getActivityArticle(String language, int currentPage, int pageSize);
+    List<ActivityArticle> getActivityArticle(@Param("language")String language);
 
     //根据文章id删除活动文章
     void deleteActivityArticle(String articleId);
 
     //根据用户设置语言和文章id获取活动文章
     ActivityArticle getOneActivityArticle(String articleId);
+
+    //将修改后活动信息数据存进数据库
+    void changeActivityArticle(ActivityArticle aa);
 }

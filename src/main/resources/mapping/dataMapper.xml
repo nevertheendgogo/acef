@@ -54,9 +54,15 @@
         select * from activityArticle where articleId=#{articleId}
     </select>
 
-   <!--获取活动文章-->
+    <!--获取活动文章-->
     <select id="getActivityArticle" resultType="ActivityArticle">
-        select * from activityArticle where language =#{language}
+
+        <if test="language!=null">
+            select * from activityArticle where language =#{language}
+        </if>
+        <if test="language==null" >
+            select articleId,title,author,displayTime from activityArticle
+        </if>
     </select>
 
     <!--判断articleId是否已经存在，即此文章是否已经上传-->
@@ -86,9 +92,25 @@
         select id from user where emailAccount = #{emailAccount}
     </select>
     <!--***************************************************************************  改  *********************************************************************************-->
+
     <!--更新协会介绍图片-->
-    <update id="updateAssociationIntroduction">
-        update picture set url=#{url} where id=#{id}
+    <update id="activityArticle">
+        update picture set url=#{url} where articleId=#{articleId}
+    </update>
+
+    <!--更新协会活动文章-->
+    <update id="changeActivityArticle">
+        update activityArticle set
+        language=#{language},
+        title=#{title},
+        author=#{author},
+        displayTime=#{displayTime},
+        activityStartTime=#{activityStartTime},
+        activityEndTime=#{activityEndTime},
+        entryFormUrl=#{entryFormUrl},
+        posterUrl=#{posterUrl},
+        content=#{content}
+        where articleId=#{articleId}
     </update>
 
 </mapper>
