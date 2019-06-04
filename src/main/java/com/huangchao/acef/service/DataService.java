@@ -58,11 +58,6 @@ public class DataService {
         mapper.addRichTextPicture(articleId, url);
     }
 
-    //保存富文本上传的海报
-    public void addRichTextPoster(String articleId, String posterUrl) {
-        mapper.addRichTextPoster(articleId, posterUrl);
-    }
-
     //活动文章保存
     public void uploadActivityArticle(ActivityArticle aa) {
         mapper.uploadActivityArticle(aa);
@@ -85,7 +80,14 @@ public class DataService {
 
     //获取活动文章
     public List<ActivityArticle> getActivityArticle(String language, int currentPage, int pageSize) {
-        return mapper.getActivityArticle(language,currentPage,pageSize);
+
+        List<ActivityArticle> activityArticleList=mapper.getActivityArticle(language,currentPage,pageSize);
+        //使路径完整
+        for (ActivityArticle s : activityArticleList) {
+            s.setEntryFormUrl("http://" + IpAddress + s.getEntryFormUrl());
+            s.setPosterUrl("http://" + IpAddress + s.getPosterUrl());
+        }
+        return activityArticleList;
     }
 
 

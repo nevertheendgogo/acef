@@ -177,7 +177,7 @@ public class DataOperation {
                     //删除数据库对应数据
                     dataService.deleteRichTextPicture(cookie.getValue());
                 }
-                CookieUtil.saveCookie("articleId", articleId, response, survivalTime*3);
+                CookieUtil.saveCookie("articleId", articleId, response, survivalTime * 3);
 
                 //执行图片持久化操作
                 dataService.addRichTextPicture(articleId, url);
@@ -199,7 +199,7 @@ public class DataOperation {
     @RequestMapping("/uaa")
     @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
-    public Map<String, String> uploadActivityArticle(ActivityArticle aa, String[] activityTime, MultipartFile entryForm, MultipartFile[] posters, HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, String> uploadActivityArticle(ActivityArticle aa, String[] activityTime, MultipartFile entryForm, MultipartFile poster, HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> result = new HashMap<>();
         result.put("result", "0");
 
@@ -220,33 +220,31 @@ public class DataOperation {
                     String fileName = aa.getActivityStartTime() + "~" + entryForm.getOriginalFilename();
                     //设置报名表映射路径
                     aa.setEntryFormUrl(mapPath + entryFormPath + fileName);
-                    //将活动信息数据存进数据库
-                    dataService.uploadActivityArticle(aa);
                     //保存图片到指定文件夹,可能出现io异常
                     entryForm.transferTo(new File(filePath + entryFormPath + fileName));
                 }
 
                 //海报处理
-                for (MultipartFile poster : posters) {
-                    if (!poster.isEmpty()) {
-                        //获取文件名
-                        String fileName = poster.getOriginalFilename();
-                        //获取文件后缀名
-                        String suffixName = fileName.substring(fileName.lastIndexOf("."));
-                        //重新生成图片名
-                        fileName = UUID.randomUUID() + suffixName;
-                        //将图片保存进数据库
-                        dataService.addRichTextPoster(aa.getArticleId(), mapPath + imgPath + activityArticleImgPath + fileName);
-                        //保存图片到指定文件夹,可能出现io异常
-                        poster.transferTo(new File(filePath + imgPath + activityArticleImgPath + fileName));
+                if (!poster.isEmpty()) {
+                    //获取文件名
+                    String fileName = poster.getOriginalFilename();
+                    //获取文件后缀名
+                    String suffixName = fileName.substring(fileName.lastIndexOf("."));
+                    //重新生成图片名
+                    fileName = UUID.randomUUID() + suffixName;
+                    //设置海报映射路径
+                    aa.setPosterUrl(mapPath + imgPath + activityArticleImgPath + fileName);
+                    //将活动信息数据存进数据库
+                    dataService.uploadActivityArticle(aa);
+                    //保存图片到指定文件夹,可能出现io异常
+                    poster.transferTo(new File(filePath + imgPath + activityArticleImgPath + fileName));
 
-                        //获取cookie
-                        Cookie[] cookies = request.getCookies();
-                        Cookie cookie = CookieUtil.findCookie(cookies, "articleId");
-                        //若id为articleId的cookie为不为空或者和当前文章id相同，则认为文章上传未中断,清除保存再cookie的文章id
-                        if (cookie != null && cookie.getValue().equals(aa.getArticleId()))
-                            CookieUtil.saveCookie("articleId", aa.getArticleId(), response, 0);
-                    }
+                    //获取cookie
+                    Cookie[] cookies = request.getCookies();
+                    Cookie cookie = CookieUtil.findCookie(cookies, "articleId");
+                    //若id为articleId的cookie为不为空或者和当前文章id相同，则认为文章上传未中断,清除保存再cookie的文章id
+                    if (cookie != null && cookie.getValue().equals(aa.getArticleId()))
+                        CookieUtil.saveCookie("articleId", aa.getArticleId(), response, 0);
                 }
 
                 result.put("result", "1");
@@ -266,191 +264,7 @@ public class DataOperation {
 
         String language = getLanguage(request);
         return dataService.getActivityArticle(language != null ? language : defaultLanguage, currentPage, pageSize);
-//        List<ActivityArticle> activityArticleList=dataService.getActivityArticle();
-//        List<FormData> formDataList = new ArrayList<>();
-//        FormData formData = new FormData();
-//        formData.setId("1");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//        formData.setId("2");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("3");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("4");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("5");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("6");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("7");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("8");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("9");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("10");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("11");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("12");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("13");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("14");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("15");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("16");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("17");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//
-//        formData.setId("18");
-//        formData.setTitle("结构化查询语言");
-//        formData.setAuthor("百度词条");
-//        formData.setDescription("结构化查询语言(Structured Query Language)简称SQL(发音：/ˈes kjuː ˈel/ \"S-Q-L\")，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统；同时也是数据库脚本文件的扩展名。\n" +
-//                "结构化查询语言是高级的非过程化编程语言，允许用户在高层数据结构上工作。它不要求用户指定对数据的存放方法，也不需要用户了解具体的数据存放方式，所以具有完全不同底层结构的不同数据库系统, 可以使用相同的结构化查询语言作为数据输入与管理的接口。结构化查询语言语句可以嵌套，这使它具有极大的灵活性和强大的功能。\n" +
-//                "1986年10月，美国国家标准协会对SQL进行规范后，以此作为关系式数据库管理系统的标准语言（ANSI X3. 135-1986），1987年得到国际标准组织的支持下成为国际标准。不过各种通行的数据库系统在其实践过程中都对SQL规范作了某些编改和扩充。所以，实际上不同数据库系统之间的SQL不能完全相互通用。");
-//        formData.setImePath("https://baike.baidu.com/pic/%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2%E8%AF%AD%E8%A8%80/10450182/0/0b46f21fbe096b6340eee5740e338744ebf8ac1b?fr=lemma&ct=single");
-//        formDataList.add(formData);
-//
-//        return formDataList;
-
     }
-
 
 
     //后台数据输入保存

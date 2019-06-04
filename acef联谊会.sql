@@ -1,13 +1,6 @@
 create database acef;
 use acef;
 
-#富文本海报
-create table rich_text_poster(
-	`id` bigint(10) primary key auto_increment comment'自增id',
-	`articleId` bigint(14) not null,
-	`url` char(55) not null
-)engine=InnoDB default charset=utf8mb4;
-select * from rich_text_poster;
 #富文本图片
 create table rich_text_picture(
 	`id` bigint(10) primary key auto_increment comment'自增id',
@@ -16,6 +9,7 @@ create table rich_text_picture(
 )engine=InnoDB default charset=utf8mb4;
 select * from rich_text_picture;
 drop table rich_text_picture;
+
 
 #活动文章保存
 create table activityArticle(
@@ -27,8 +21,11 @@ create table activityArticle(
     `activityStartTime` date comment'活动开始时间',
     `activityEndTime` date comment'活动结束时间',
     `entryFormUrl` varchar(50) comment'报名表映射路径',
+    `posterUrl` varchar(55) comment'海报映射路径',
     `content` varchar(10000) comment'文章内容'
 )engine=InnoDB default charset=utf8mb4;
+select * from activityArticle;
+drop table activityArticle;
 
 #(轮播图，协会介绍)
 create table picture(

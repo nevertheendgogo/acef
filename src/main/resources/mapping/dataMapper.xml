@@ -15,10 +15,6 @@
         </foreach>
     </insert>
 
-    <!--//富文本海报保存-->
-    <insert id="addRichTextPoster">
-        insert into rich_text_poster values (default,#{articleId},#{posterUrl})
-    </insert>
 
     <!--//富文本图片保存-->
     <insert id="addRichTextPicture">
@@ -27,7 +23,7 @@
 
  <!--活动文章保存-->
     <insert id="uploadActivityArticle">
-        insert into activityArticle values (#{articleId},#{language},#{title},#{author},#{displayTime},#{activityStartTime},#{activityEndTime},#{entryFormUrl},#{content})
+        insert into activityArticle values (#{articleId},#{language},#{title},#{author},#{displayTime},#{activityStartTime},#{activityEndTime},#{entryFormUrl},#{posterUrl},#{content})
     </insert>
 
     <!--保存用户信息-->
@@ -50,7 +46,7 @@
 
     <!--获取活动文章-->
     <select id="getActivityArticle" resultType="ActivityArticle">
-        select articleId from activityArticle left join rich_text_poster
+        select * from activityArticle
     </select>
 
     <!--判断articleId是否已经存在，即此文章是否已经上传-->

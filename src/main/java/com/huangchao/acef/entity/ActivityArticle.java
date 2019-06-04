@@ -1,6 +1,5 @@
 package com.huangchao.acef.entity;
 
-import java.util.List;
 
 public class ActivityArticle {
     private String articleId;

@@ -49,9 +49,6 @@ public interface DataMapper {
     //保存富文本上传的图片
     void addRichTextPicture(String articleId, String url);
 
-    //保存富文本上传的海报
-    void addRichTextPoster(String articleId, String posterUrl);
-
     //活动文章保存
     void uploadActivityArticle(ActivityArticle aa);
 
