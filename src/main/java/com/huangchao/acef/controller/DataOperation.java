@@ -261,7 +261,7 @@ public class DataOperation {
     @RequestMapping("/gaa/{currentPage}/{pageSize}")
     @ResponseBody                               //当前页号                                                一页的数据量
     public List<ActivityArticle> getActivityArticle(@PathVariable(value = "currentPage") int currentPage, @PathVariable(value = "pageSize") int pageSize, HttpServletRequest request) {
-
+        //获取用户设置的语言
         String language = getLanguage(request);
         return dataService.getActivityArticle(language != null ? language : defaultLanguage, currentPage, pageSize);
     }

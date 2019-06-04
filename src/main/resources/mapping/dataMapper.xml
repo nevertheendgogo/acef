@@ -21,7 +21,7 @@
         insert into rich_text_picture values (default,#{articleId},#{url})
     </insert>
 
- <!--活动文章保存-->
+    <!--活动文章保存-->
     <insert id="uploadActivityArticle">
         insert into activityArticle values (#{articleId},#{language},#{title},#{author},#{displayTime},#{activityStartTime},#{activityEndTime},#{entryFormUrl},#{posterUrl},#{content})
     </insert>
@@ -46,7 +46,7 @@
 
     <!--获取活动文章-->
     <select id="getActivityArticle" resultType="ActivityArticle">
-        select * from activityArticle
+        select * from activityArticle where language =#{language}
     </select>
 
     <!--判断articleId是否已经存在，即此文章是否已经上传-->
