@@ -16,7 +16,6 @@ spring:
       connection-timeout: 15000 #连接超时时间
       connection-test-query: SELECT 1 #心跳检测
 
-
 #自定义数据
 #本机公网Ip地址
 IpAddress: localhost

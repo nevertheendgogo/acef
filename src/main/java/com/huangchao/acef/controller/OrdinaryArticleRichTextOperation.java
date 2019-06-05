@@ -44,7 +44,6 @@ public class OrdinaryArticleRichTextOperation {
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> uploadOrdinaryArticle(OrdinaryArticle oa, HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> result = new HashMap<>();
-        System.out.println(oa);
         //判断articleId是否已经存在，即此文章是否已经上传
         if (!ordinaryArticleRichTextService.existOrdinaryArticleId(oa.getArticleId())) {
             try {
@@ -113,7 +112,7 @@ public class OrdinaryArticleRichTextOperation {
     }
 
     //修改普通文章
-    @RequestMapping(value = "/c", method = RequestMethod.POST)
+    @RequestMapping(value = "/c", method = RequestMethod.PUT)
     @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> changeOrdinaryArticle(OrdinaryArticle oa) {

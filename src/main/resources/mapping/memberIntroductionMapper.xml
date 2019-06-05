@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.huangchao.acef.dao.MemberIntroductionMapper">
+
+    <!--***********************************************************************  增 *************************************************************************************-->
+
+    <!--保存成员展示信息-->
+    <insert id="memberIntroductionSave">
+        insert into show_member values(default ,#{chName},#{chPos},#{chDes},#{frName},#{frPos},#{frDes},#{showPriority},#{imgPath},default,default)
+    </insert>
+
+    <!--***************************************************************************  删  *********************************************************************************-->
+    <!--后台管理成员信息删除-->
+    <delete id="deleteMemberIntroduction">
+        delete from show_member
+        where id in
+        <foreach collection="array" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--***************************************************************************  查  *********************************************************************************-->
+
+    <!--获取前端展示的所有成员法语信息-->
+    <select id="getAllFrenchShowMemberIntroduction" resultType="GetMemberIntroduction" resultMap="French">
+        select id,frName,frPos,frDes,imgPath
+        from show_member
+        order by showPriority asc
+    </select>
+
+    <!--法语保存成员展示信息配置-->
+    <resultMap id="French" type="GetMemberIntroduction">
+        <!-- result配置，主要配置普通属性，column表示配置的是数据库字段名称 property配置的是实体类的属性名称 -->
+        <result property="name" column="frName"></result>
+        <result property="position" column="frPos"></result>
+        <result property="description" column="frDes"></result>
+    </resultMap>
+
+    <!--获取前端展示的所有成员汉语信息-->
+    <select id="getAllChineseShowMemberIntroduction" resultType="GetMemberIntroduction" resultMap="Chinese">
+        select id,chName,chPos,chDes,imgPath
+        from show_member
+        order by showPriority asc
+    </select>
+
+    <!--中文保存成员展示信息配置-->
+    <resultMap id="Chinese" type="GetMemberIntroduction">
+        <!-- result配置，主要配置普通属性，column表示配置的是数据库字段名称 property配置的是实体类的属性名称 -->
+        <result property="name" column="chName"></result>
+        <result property="position" column="chPos"></result>
+        <result property="description" column="chDes"></result>
+    </resultMap>
+
+    <!--获取后台管理的所有成员信息-->
+    <select id="getAllManageMemberIntroduction" resultType="MemberIntroduction">
+        select id,chName,chPos,chDes,frName,frPos,frDes,showPriority,imgPath
+        from show_member
+        order by showPriority asc
+    </select>
+
+    <!--获取后台管理的所有成员信息-->
+    <select id="getOneManageMemberIntroduction" resultType="MemberIntroduction">
+        select id,chName,chPos,chDes,frName,frPos,frDes,showPriority,imgPath
+        from show_member
+        where id=#{id}
+    </select>
+
+    <!--***************************************************************************  改  *********************************************************************************-->
+    <update id="changeMemberIntroduction" parameterType="MemberIntroduction">
+        update show_member
+        <set>
+            chName=#{chName},
+            chPos=#{chPos},
+            chDes=#{chDes},
+            frName=#{frName},
+            frPos=#{frPos},
+            frDes=#{frDes},
+            showPriority=#{showPriority},
+            <if test="imgPath != null">imgPath=#{imgPath}</if>
+        </set>
+        where id=#{id}
+    </update>
+
+</mapper>

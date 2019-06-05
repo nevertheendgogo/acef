@@ -21,7 +21,7 @@
 
     <!--***************************************************************************  查  *********************************************************************************-->
 
-   <!--根据文章id获取活动文章-->
+    <!--根据文章id获取活动文章-->
     <select id="getOneActivityArticle" resultType="ActivityArticle">
         select * from activityArticle where articleId=#{articleId}
     </select>
@@ -30,10 +30,12 @@
     <select id="getActivityArticle" resultType="ActivityArticle">
 
         <if test="language!=null">
-            select * from activityArticle where language =#{language} and part=#{part}
+            select articleId,title,author,displayTime,activityStartTime,activityEndTime from activityArticle where
+            language =#{language} and part=#{part}
         </if>
         <if test="language==null">
-            select articleId,title,author,displayTime from activityArticle where part=#{part}
+            select articleId,title,author,displayTime,activityStartTime,activityEndTime from activityArticle where
+            part=#{part}
         </if>
     </select>
 

@@ -88,23 +88,28 @@ public class ActivityArticleRichTextService {
 
     //根据文章id获取活动文章
     public ActivityArticle getOneActivityArticle(String articleId) {
-        return activityArticleRichTextMapper.getOneActivityArticle(articleId);
+        ActivityArticle activityArticle = activityArticleRichTextMapper.getOneActivityArticle(articleId);
+        //使报名表、海报路径完整
+        activityArticle.setEntryFormUrl("http://"+IpAddress+activityArticle.getEntryFormUrl());
+        activityArticle.setPosterUrl("http://"+IpAddress+activityArticle.getPosterUrl());
+        activityArticle.setDisplayTime(activityArticle.getDisplayTime().substring(0, 10));
+        return activityArticle;
     }
 
-    //获取活动文章
-    public PageInfo<ActivityArticle> getActivityArticle(String language, int currentPage, int pageSize,String part) {
+    //批量获取活动文章
+    public PageInfo<ActivityArticle> getActivityArticle(String language, int currentPage, int pageSize, String part) {
 
         if (language.equals("all"))
             language = null;
         //对数据库的操作必须在此定义的下一条语句执行，且只有一条语句有分页效果，若要多条语句都有分页效果，需写多条本语句
         Page<?> page = PageHelper.startPage(currentPage, pageSize);
-        List<ActivityArticle> activityArticleList = activityArticleRichTextMapper.getActivityArticle(language,part);
-        //使路径完整
-        if (language != null)
-            for (ActivityArticle s : activityArticleList) {
-                s.setEntryFormUrl("http://" + IpAddress + s.getEntryFormUrl());
-                s.setPosterUrl("http://" + IpAddress + s.getPosterUrl());
-            }
+        List<ActivityArticle> activityArticleList = activityArticleRichTextMapper.getActivityArticle(language, part);
+        //使路径完整、并截断时间
+        for (ActivityArticle s : activityArticleList) {
+            s.setEntryFormUrl("http://" + IpAddress + s.getEntryFormUrl());
+            s.setPosterUrl("http://" + IpAddress + s.getPosterUrl());
+            s.setDisplayTime(s.getDisplayTime().substring(0,10));
+        }
         //用PageInfo对结果进行包装
         PageInfo<ActivityArticle> pageInfo = (PageInfo<ActivityArticle>) page.toPageInfo();
         return pageInfo;

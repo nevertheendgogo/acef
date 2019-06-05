@@ -33,10 +33,12 @@
     <select id="getOrdinaryArticle" resultType="OrdinaryArticle">
 
         <if test="language!=null">
-            select * from ordinary_article where language =#{language} and part=#{part}
+            select articleId,title,author,displayTime from ordinary_article where
+            language =#{language} and part=#{part}
         </if>
         <if test="language==null">
-            select articleId,title,author,displayTime from ordinary_article where part=#{part}
+            select articleId,title,author,displayTime from ordinary_article where
+            part=#{part}
         </if>
     </select>
 

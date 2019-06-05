@@ -7,121 +7,28 @@
 
     <!--***********************************************************************  增 *************************************************************************************-->
 
-    <!--保存页面展示数据-->
-    <insert id="addData">
-        insert into show_data values(#{part},#{title},#{frenchDes},#{englishDes},#{chineseDes},#{imePath}, default,default)
-    </insert>
-
-    <!--保存用户反馈信息-->
-    <insert id="setFeedback">
-        insert into feedback values(default ,#{emailAccount},#{userName},#{phone},#{title},#{description}, default)
-    </insert>
-
-    <!--保存成员展示信息-->
-    <insert id="addShowMember">
-        insert into show_member values(default ,#{chName},#{chPos},#{chDes},#{frName},#{frPos},#{frDes},#{showPriority},#{imgPath},default,default)
-    </insert>
-
     <!--保存用户信息-->
     <insert id="addUser">
         insert into user values(default,#{emailAccount},#{password},#{userName},#{phone},#{status}, default,default)
     </insert>
 
-    <!--***************************************************************************  删  *********************************************************************************-->
-    <!--后台管理成员信息删除-->
-    <delete id="deleteMemberIntroduction">
-        delete from show_member
-        where id in
-        <foreach collection="array" item="id" separator="," open="(" close=")">
-            #{id}
-        </foreach>
-    </delete>
-
-    <!--后台意见反馈信息批量删除-->
-    <delete id="deleteFeedback">
-        delete from feedback
-        where id in
-        <foreach collection="array" item="id" separator="," open="(" close=")">
-            #{id}
-        </foreach>
-    </delete>
-
     <!--***************************************************************************  查  *********************************************************************************-->
+
     <!--查找用户-->
     <select id="findUserByEmailAccount" resultType="User">
         select id,password from user where emailAccount = #{emailAccount}
     </select>
+
     <!--查找用户-->
     <select id="findUserById" resultType="User">
         select * from user where id = #{id}
     </select>
+
     <!--查找用户id-->
     <select id="findIdByEmailAccount" resultType="String">
         select id from user where emailAccount = #{emailAccount}
     </select>
 
-    <!--意见反馈信息获取接口-->
-    <select id="getFeedback" resultType="Feedback">
-        select * from feedback
-    </select>
-
-    <!--获取前端展示的所有成员法语信息-->
-    <select id="getAllFrenchShowMemberIntroduction" resultType="GetMemberIntroduction" resultMap="French">
-        select id,frName,frPos,frDes,imgPath
-        from show_member
-        order by showPriority asc
-    </select>
-    <!--获取前端展示的所有成员汉语信息-->
-    <select id="getAllChineseShowMemberIntroduction" resultType="GetMemberIntroduction" resultMap="Chinese">
-        select id,chName,chPos,chDes,imgPath
-        from show_member
-        order by showPriority asc
-    </select>
-    <!--获取后台管理的所有成员信息-->
-    <select id="getAllManageMemberIntroduction" resultType="MemberIntroduction">
-        select id,chName,chPos,chDes,frName,frPos,frDes,showPriority,imgPath
-        from show_member
-        order by showPriority asc
-    </select>
-    <!--获取后台管理的所有成员信息-->
-    <select id="getOneManageMemberIntroduction" resultType="MemberIntroduction">
-        select id,chName,chPos,chDes,frName,frPos,frDes,showPriority,imgPath
-        from show_member
-        where id=#{id}
-    </select>
-
     <!--***************************************************************************  改  *********************************************************************************-->
-    <update id="changeMemberIntroduction" parameterType="MemberIntroduction">
-        update show_member
-        <set>
-            chName=#{chName},
-            chPos=#{chPos},
-            chDes=#{chDes},
-            frName=#{frName},
-            frPos=#{frPos},
-            frDes=#{frDes},
-            showPriority=#{showPriority},
-            <if test="imgPath != null">imgPath=#{imgPath}</if>
-        </set>
-        where id=#{id}
-    </update>
-
-
-    <!--自定义映射关系集合：主要包含对于一些自定义操作的配置，如不一致的属性和字段-->
-    <!--法语保存成员展示信息配置-->
-    <resultMap id="French" type="GetMemberIntroduction">
-        <!-- result配置，主要配置普通属性，column表示配置的是数据库字段名称 property配置的是实体类的属性名称 -->
-        <result property="name" column="frName"></result>
-        <result property="position" column="frPos"></result>
-        <result property="description" column="frDes"></result>
-    </resultMap>
-    <!--中文保存成员展示信息配置-->
-    <resultMap id="Chinese" type="GetMemberIntroduction">
-        <!-- result配置，主要配置普通属性，column表示配置的是数据库字段名称 property配置的是实体类的属性名称 -->
-        <result property="name" column="chName"></result>
-        <result property="position" column="chPos"></result>
-        <result property="description" column="chDes"></result>
-    </resultMap>
-
 
 </mapper>

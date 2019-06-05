@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.huangchao.acef.dao.FeedbackMapper">
+
+    <!--***********************************************************************  增 *************************************************************************************-->
+
+    <!--保存用户反馈信息-->
+    <insert id="setFeedback">
+        insert into feedback values(default ,#{emailAccount},#{userName},#{phone},#{title},#{description}, default)
+    </insert>
+
+    <!--***************************************************************************  删  *********************************************************************************-->
+
+    <!--后台意见反馈信息批量删除-->
+    <delete id="deleteFeedback">
+        delete from feedback
+        where id in
+        <foreach collection="array" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--***************************************************************************  查  *********************************************************************************-->
+
+    <!--意见反馈信息获取接口-->
+    <select id="getFeedback" resultType="Feedback">
+        select * from feedback
+    </select>
+
+</mapper>

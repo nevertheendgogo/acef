@@ -15,6 +15,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 import static com.huangchao.acef.global.Common.deletePreviousPicture;
 
@@ -41,7 +42,6 @@ public class OrdinaryArticleRichTextService {
     String activityArticleImgPath;
 
 
-
     //普通文章上传
     public void uploadOrdinaryArticle(OrdinaryArticle oa, HttpServletRequest request, HttpServletResponse response) {
         ordinaryArticleRichTextMapper.uploadOrdinaryArticle(oa);
@@ -55,8 +55,8 @@ public class OrdinaryArticleRichTextService {
 
     //根据普通文章id删除普通文章
     public void deleteOrdinaryArticle(String[] articleId) throws IOException {
-        if (articleId != null){
-            for (int i = 0; i <articleId.length; i++) {
+        if (articleId != null) {
+            for (int i = 0; i < articleId.length; i++) {
                 //删除文章中的图片
                 String[] imgPaths = pictureMapper.getRiceTextPictures(articleId[i]);
                 if (imgPaths != null) {
@@ -76,20 +76,27 @@ public class OrdinaryArticleRichTextService {
 
     //根据普通文章id获取普通文章
     public OrdinaryArticle getOneOrdinaryArticle(String articleId) {
-        if (articleId!=null)
-            return ordinaryArticleRichTextMapper.getOneOrdinaryArticle(articleId);
-        else
+        if (articleId != null) {
+            OrdinaryArticle ordinaryArticle = ordinaryArticleRichTextMapper.getOneOrdinaryArticle(articleId);
+            //截断时间
+            ordinaryArticle.setDisplayTime(ordinaryArticle.getDisplayTime().substring(0, 10));
+            return ordinaryArticle;
+        } else
             return null;
     }
 
     //批量获取普通文章
-    public PageInfo<OrdinaryArticle> getOrdinaryArticle(String language, int currentPage, int pageSize,String part) {
+    public PageInfo<OrdinaryArticle> getOrdinaryArticle(String language, int currentPage, int pageSize, String part) {
 
         if (language.equals("all"))
             language = null;
         //对数据库的操作必须在此定义的下一条语句执行，且只有一条语句有分页效果，若要多条语句都有分页效果，需写多条本语句
         Page<?> page = PageHelper.startPage(currentPage, pageSize);
-        ordinaryArticleRichTextMapper.getOrdinaryArticle(language,part);
+        List<OrdinaryArticle> ordinaryArticleList = ordinaryArticleRichTextMapper.getOrdinaryArticle(language, part);
+        //截断时间
+        for (OrdinaryArticle o : ordinaryArticleList) {
+            o.setDisplayTime(o.getDisplayTime().substring(0, 10));
+        }
         //用PageInfo对结果进行包装
         PageInfo<OrdinaryArticle> pageInfo = (PageInfo<OrdinaryArticle>) page.toPageInfo();
         return pageInfo;
