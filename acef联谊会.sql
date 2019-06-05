@@ -1,6 +1,14 @@
 create database acef;
 use acef;
 
+#友情链接
+create table friendly_link(
+	`id` bigint(10) primary key auto_increment comment'自增id',
+	`description` varchar(50) not null comment'加载失败时显示的描述',
+	`link` varchar(100) not null comment'链接',
+    `imgPath` varchar(55) not null comment'图片映射路径'
+)engine=InnoDB default charset=utf8mb4;
+
 #富文本图片
 create table rich_text_picture(
 	`id` bigint(10) primary key auto_increment comment'自增id',

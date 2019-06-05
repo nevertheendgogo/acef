@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.huangchao.acef.dao.FriendlyLinkMapper">
+
+    <!--***********************************************************************  增 *************************************************************************************-->
+
+    <!--友情链接上传-->
+    <insert id="uploadFriendlyLink">
+        insert into friendly_link values(default ,#{description},#{link},#{imgPath})
+    </insert>
+
+    <!--***************************************************************************  删  *********************************************************************************-->
+
+    <!--删除友情链接-->
+    <delete id="deleteFriendlyLink">
+        delete from friendly_link
+        where id in
+        <foreach collection="array" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--***************************************************************************  查  *********************************************************************************-->
+
+    <!--获取需要被删除的图图片链接-->
+    <select id="getImgPaths" resultType="String">
+        select imgPath from friendly_link where id in
+        <foreach collection="array" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!--获取所有友情链接-->
+    <select id="getAllFriendlyLink" resultType="FriendlyLink">
+        select * from friendly_link
+    </select>
+
+</mapper>

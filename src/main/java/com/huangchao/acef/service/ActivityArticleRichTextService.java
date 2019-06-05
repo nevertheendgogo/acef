@@ -7,6 +7,7 @@ import com.huangchao.acef.dao.ActivityArticleRichTextMapper;
 import com.huangchao.acef.dao.PictureMapper;
 import com.huangchao.acef.entity.ActivityArticle;
 import com.huangchao.acef.utils.CookieUtil;
+import com.huangchao.acef.utils.ZIPUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -154,10 +155,16 @@ public class ActivityArticleRichTextService {
         if (entryForm != null && !entryForm.isEmpty()) {
             //获取报名表名
             String fileName = aa.getActivityStartTime() + new Date().getTime() + "~" + entryForm.getOriginalFilename();
-            //设置报名表映射路径
-            aa.setEntryFormUrl(mapPath + entryFormPath + fileName);
+
             //保存图片到指定文件夹,可能出现io异常
             entryForm.transferTo(new File(filePath + entryFormPath + fileName));
+            //删除原文件
+            File file=new File(filePath + entryFormPath + fileName);
+            file.delete();
+            //压缩文件
+            fileName=ZIPUtil.compress(filePath + entryFormPath + fileName);
+            //设置报名表映射路径
+            aa.setEntryFormUrl(fileName);
         }
 
 

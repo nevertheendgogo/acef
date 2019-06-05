@@ -1,7 +1,7 @@
 #设置环境（开发/生产）
 spring:
   profiles:
-    active: dev
+    active: prd
 
 #配置视图解析器
   mvc:
@@ -49,3 +49,5 @@ activityArticleImgPath: aaip/
 articleImgPath: aip/
 #报名表保存路径，相对根路径
 entryFormPath: ef/
+#友情链接图片保存路径，相对图片保存路径
+friendlyLinkPath: fl/
