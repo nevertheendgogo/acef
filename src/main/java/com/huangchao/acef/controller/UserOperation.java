@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Cookie;
@@ -239,7 +242,7 @@ public class UserOperation {
 
     /******************************************************** 登录 ************************************************************************/
     //登录状态查询
-    @GetMapping(value = "/isLogin")
+    @RequestMapping(value = "/isLogin",method = RequestMethod.GET)
     @ResponseBody
     public Map<String, String> isLogin(HttpServletRequest request) {
         //用于返回查询结果,成功则返回1和昵称
@@ -277,7 +280,7 @@ public class UserOperation {
     }
 
     //管理员登陆
-    @GetMapping(value = "/login")
+    @RequestMapping(value = "/login",method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> login(User user, HttpServletRequest request, HttpServletResponse response) {
         //用于返回登录结果

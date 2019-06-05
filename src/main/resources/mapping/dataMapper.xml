@@ -7,6 +7,11 @@
 
     <!--***********************************************************************  增 *************************************************************************************-->
 
+    <!--普通文章上传-->
+    <insert id="uploadOrdinaryArticle">
+        insert into ordinary_article values(#{articleId},#{part},#{language},#{title},#{author},#{displayTime},#{content})
+    </insert>
+
     <!--保存轮播图或协会介绍数据到数据库-->
     <insert id="uploadPicture">
         insert into picture values
@@ -15,7 +20,6 @@
         </foreach>
     </insert>
 
-
     <!--//富文本图片保存-->
     <insert id="addRichTextPicture">
         insert into rich_text_picture values (default,#{articleId},#{url})
@@ -23,7 +27,7 @@
 
     <!--活动文章保存-->
     <insert id="addActivityArticle">
-        insert into activityArticle values (#{articleId},#{language},#{title},#{author},#{displayTime},#{activityStartTime},#{activityEndTime},#{entryFormUrl},#{posterUrl},#{content})
+        insert into activityArticle values (#{articleId},#{part},#{language},#{title},#{author},#{displayTime},#{activityStartTime},#{activityEndTime},#{entryFormUrl},#{posterUrl},#{content})
     </insert>
 
     <!--保存用户信息-->
@@ -32,6 +36,14 @@
     </insert>
 
     <!--***************************************************************************  删  *********************************************************************************-->
+
+    <!--根据普通文章id删除普通文章-->
+    <delete id="deleteOrdinaryArticle">
+        delete from ordinary_article where articleId in
+        <foreach collection="array" item="articleId" separator="," open="(" close=")">
+            articleId
+        </foreach>
+    </delete>
 
     <!--根据文章id删除活动文章-->
     <delete id="deleteActivityArticle">
@@ -49,20 +61,41 @@
     </delete>
     <!--***************************************************************************  查  *********************************************************************************-->
 
-    <!--获取活动文章-->
+    <!--批量获取普通文章-->
+    <select id="getOrdinaryArticle" resultType="OrdinaryArticle">
+
+        <if test="language!=null">
+            select * from ordinary_article where language =#{language} and part=#{part}
+        </if>
+        <if test="language==null">
+            select articleId,title,author,displayTime from ordinary_article where part=#{part}
+        </if>
+    </select>
+
+    <!--根据文章id获取普通文章-->
+    <select id="getOneOrdinaryArticle" resultType="OrdinaryArticle">
+        select * from ordinary_article where articleId=#{articleId}
+    </select>
+
+   <!--根据文章id获取活动文章-->
     <select id="getOneActivityArticle" resultType="ActivityArticle">
         select * from activityArticle where articleId=#{articleId}
     </select>
 
-    <!--获取活动文章-->
+    <!--批量获取活动文章-->
     <select id="getActivityArticle" resultType="ActivityArticle">
 
         <if test="language!=null">
-            select * from activityArticle where language =#{language}
+            select * from activityArticle where language =#{language} and part=#{part}
         </if>
-        <if test="language==null" >
-            select articleId,title,author,displayTime from activityArticle
+        <if test="language==null">
+            select articleId,title,author,displayTime from activityArticle where part=#{part}
         </if>
+    </select>
+
+    <!--判断articleId是否已经存在，即此文章是否已经上传-->
+    <select id="existOrdinaryArticleId" resultType="String">
+        select articleId from ordinary_article where articleId=#{articleId}
     </select>
 
     <!--判断articleId是否已经存在，即此文章是否已经上传-->

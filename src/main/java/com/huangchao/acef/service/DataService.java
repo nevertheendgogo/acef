@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.huangchao.acef.dao.DataMapper;
 import com.huangchao.acef.entity.ActivityArticle;
+import com.huangchao.acef.entity.OrdinaryArticle;
 import com.huangchao.acef.entity.Slideshow;
 import com.huangchao.acef.utils.CookieUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,19 +104,24 @@ public class DataService {
         return mapper.getRiceTextPictures(articleId);
     }
 
-    //    判断articleId是否已经存在，即此文章是否已经上传
+    //    判断articleId是否已经存在，即此活动文章是否已经上传
     public boolean existArticleId(String articleId) {
         return mapper.existArticleId(articleId) != null;
     }
 
+    //    判断articleId是否已经存在，即此普通文章是否已经上传
+    public boolean existOrdinaryArticleId(String articleId) {
+        return mapper.existOrdinaryArticleId(articleId) != null;
+    }
+
     //获取活动文章
-    public PageInfo<ActivityArticle> getActivityArticle(String language, int currentPage, int pageSize) {
+    public PageInfo<ActivityArticle> getActivityArticle(String language, int currentPage, int pageSize,String part) {
 
         if (language.equals("all"))
             language = null;
         //对数据库的操作必须在此定义的下一条语句执行，且只有一条语句有分页效果，若要多条语句都有分页效果，需写多条本语句
         Page<?> page = PageHelper.startPage(currentPage, pageSize);
-        List<ActivityArticle> activityArticleList = mapper.getActivityArticle(language);
+        List<ActivityArticle> activityArticleList = mapper.getActivityArticle(language,part);
         //使路径完整
         if (language != null)
             for (ActivityArticle s : activityArticleList) {
@@ -218,7 +224,7 @@ public class DataService {
     //活动文章上传
     public void uploadActivityArticle(ActivityArticle aa, String[] activityTime, MultipartFile entryForm, MultipartFile poster, HttpServletRequest request, HttpServletResponse response) throws IOException {
         //活动信息处理
-        aa=activityArticleDispose(aa, activityTime, entryForm, poster, request, response);
+        aa = activityArticleDispose(aa, activityTime, entryForm, poster, request, response);
         //将活动信息数据存进数据库
         addActivityArticle(aa);
 
@@ -237,7 +243,7 @@ public class DataService {
             deletePreviousPicture(activityArticle.getPosterUrl(), filePath, imgPath + activityArticleImgPath);
         }
         //活动信息处理
-        aa=activityArticleDispose(aa, activityTime, entryForm, poster, request, response);
+        aa = activityArticleDispose(aa, activityTime, entryForm, poster, request, response);
 
         //将修改后活动信息数据存进数据库
         mapper.changeActivityArticle(aa);
@@ -277,13 +283,15 @@ public class DataService {
             //保存图片到指定文件夹,可能出现io异常
             poster.transferTo(new File(filePath + imgPath + activityArticleImgPath + fileName));
 
-            //获取cookie
-            Cookie[] cookies = request.getCookies();
-            Cookie cookie = CookieUtil.findCookie(cookies, "articleId");
-            //若id为articleId的cookie为不为空或者和当前文章id相同，则认为文章上传未中断,清除保存再cookie的文章id
-            if (cookie != null && cookie.getValue().equals(aa.getArticleId()))
-                CookieUtil.saveCookie("articleId", aa.getArticleId(), response, 0);
         }
+
+        //获取cookie
+        Cookie[] cookies = request.getCookies();
+        Cookie cookie = CookieUtil.findCookie(cookies, "articleId");
+        //若id为articleId的cookie为不为空或者和当前文章id相同，则认为文章上传未中断,清除保存再cookie的文章id
+        if (cookie != null && cookie.getValue().equals(aa.getArticleId()))
+            CookieUtil.saveCookie("articleId", aa.getArticleId(), response, 0);
+
         return aa;
     }
 
@@ -292,5 +300,56 @@ public class DataService {
         return mapper.getOneActivityArticle(articleId);
     }
 
+    //普通文章上传
+    public void uploadOrdinaryArticle(OrdinaryArticle oa,HttpServletRequest request,HttpServletResponse response) {
+        mapper.uploadOrdinaryArticle(oa);
+        //获取cookie
+        Cookie[] cookies = request.getCookies();
+        Cookie cookie = CookieUtil.findCookie(cookies, "articleId");
+        //若id为articleId的cookie为不为空或者和当前文章id相同，则认为文章上传未中断,清除保存再cookie的文章id
+        if (cookie != null && cookie.getValue().equals(oa.getArticleId()))
+            CookieUtil.saveCookie("articleId", oa.getArticleId(), response, 0);
+    }
 
+    //根据普通文章id删除普通文章
+    public void deleteOrdinaryArticle(String[] articleId) throws IOException {
+        if (articleId != null){
+            for (int i = 0; i <articleId.length; i++) {
+                //删除文章中的图片
+                String[] imgPaths = mapper.getRiceTextPictures(articleId[i]);
+                if (imgPaths != null) {
+                    for (String imgUrl : imgPaths) {
+                        //删除图片
+                        deletePreviousPicture(imgUrl, filePath, imgPath + activityArticleImgPath);
+                        //删除数据库中保存的图片链接
+                        mapper.deleteRichTextPicture(articleId[i]);
+                    }
+                }
+            }
+            //删除文章
+            mapper.deleteOrdinaryArticle(articleId);
+
+        }
+    }
+
+    //根据普通文章id获取普通文章
+    public OrdinaryArticle getOneOrdinaryArticle(String articleId) {
+        if (articleId!=null)
+            return mapper.getOneOrdinaryArticle(articleId);
+        else
+            return null;
+    }
+
+    //批量获取普通文章
+    public PageInfo<OrdinaryArticle> getOrdinaryArticle(String language, int currentPage, int pageSize,String part) {
+
+        if (language.equals("all"))
+            language = null;
+        //对数据库的操作必须在此定义的下一条语句执行，且只有一条语句有分页效果，若要多条语句都有分页效果，需写多条本语句
+        Page<?> page = PageHelper.startPage(currentPage, pageSize);
+        mapper.getOrdinaryArticle(language,part);
+        //用PageInfo对结果进行包装
+        PageInfo<OrdinaryArticle> pageInfo = (PageInfo<OrdinaryArticle>) page.toPageInfo();
+        return pageInfo;
+    }
 }

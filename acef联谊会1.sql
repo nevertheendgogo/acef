@@ -1,31 +1,45 @@
 create database acef;
 use acef;
 
+#普通文章保存
+create table ordinary_article(
+	`articleId` bigint(14) primary key comment'文章id', 
+    `part` varchar(20) not null comment'文章所属专题', 
+    `language` char(7) not null comment'语言',
+    `title` varchar(80) comment'标题',
+    `author` varchar(80) comment'作者',
+    `displayTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP comment'发布时间',
+    `content` varchar(10000) comment'文章内容'
+)engine=InnoDB default charset=utf8mb4;
+
+select * from ordinary_article;
+
 #富文本图片
 create table rich_text_picture(
 	`id` bigint(10) primary key auto_increment comment'自增id',
 	`articleId` bigint(14) not null,
 	`url` char(55) not null
 )engine=InnoDB default charset=utf8mb4;
+
 select * from rich_text_picture;
-select url from rich_text_picture where articleId='1234567891238';
-drop table rich_text_picture;
 
 #活动文章保存
 create table activityArticle(
 	`articleId` bigint(14) primary key comment'文章id', 
+    `part` varchar(20) not null comment'文章所属专题', 
     `language` char(7) not null comment'语言',
     `title` varchar(80) comment'标题',
     `author` varchar(80) comment'作者',
-    `displayTime` date comment'发布时间',
+    `displayTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP comment'发布时间',
     `activityStartTime` date comment'活动开始时间',
     `activityEndTime` date comment'活动结束时间',
     `entryFormUrl` varchar(50) comment'报名表映射路径',
     `posterUrl` varchar(55) comment'海报映射路径',
     `content` varchar(10000) comment'文章内容'
 )engine=InnoDB default charset=utf8mb4;
+
 select * from activityArticle;
-drop table activityArticle;
+
 
 #(轮播图，协会介绍)
 create table picture(
@@ -94,8 +108,9 @@ create table feedback(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 drop table user;
-drop table show_data;
-drop table show_member;
+drop table ordinary_article;
+drop table activityArticle;
+drop table rich_text_picture;
 delete from show_member where id!=7;
 
 select * from user;

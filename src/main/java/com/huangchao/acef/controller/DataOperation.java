@@ -41,7 +41,7 @@ public class DataOperation {
 
     /***************************************************************  轮播图/协会介绍/富文本图片上传 *************************************************************************************************************/
     //轮播图或协会介绍图上传
-    @RequestMapping(value = "/up",method = RequestMethod.POST)
+    @RequestMapping(value = "/up", method = RequestMethod.POST)
     @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> uploadSlideshowOrAssociationIntroduction(MultipartFile[] slideshows, String part, Integer id, String url) {
@@ -61,7 +61,7 @@ public class DataOperation {
     }
 
     //轮播图或协会介绍链接获取
-    @RequestMapping(value = "/gp",method = RequestMethod.GET)
+    @RequestMapping(value = "/gp", method = RequestMethod.GET)
     @ResponseBody
     public List<Slideshow> getPicture(String part) {
         try {
@@ -74,7 +74,7 @@ public class DataOperation {
     }
 
     //轮播图删除
-    @RequestMapping(value = "/dss",method =RequestMethod.DELETE )
+    @RequestMapping(value = "/dss", method = RequestMethod.DELETE)
     @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> deleteSlideshow(int id, String url) {
@@ -95,14 +95,12 @@ public class DataOperation {
     }
 
     //富文本(rice text)图片上传
-    @RequestMapping(value = "/urtp",method = RequestMethod.POST)
+    @RequestMapping(value = "/urtp", method = RequestMethod.POST)
     @ResponseBody                                                           //文章id
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> uploadRiceTextPicture(MultipartFile picture, String articleId, HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> result = new HashMap<>();
-
         String url;
-
         if (picture != null && !picture.isEmpty() && articleId != null && !articleId.equals("")) {
             try {
                 url = dataService.uploadRiceTextPicture(picture, articleId, request, response);
@@ -122,7 +120,7 @@ public class DataOperation {
     /***************************************************************  富文本活动文章 *************************************************************************************************************/
 
     //活动文章上传
-    @RequestMapping(value = "/uaa",method = RequestMethod.POST)
+    @RequestMapping(value = "/uaa", method = RequestMethod.POST)
     @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> uploadActivityArticle(ActivityArticle aa, String[] activityTime, MultipartFile entryForm, MultipartFile poster, HttpServletRequest request, HttpServletResponse response) {
@@ -145,7 +143,7 @@ public class DataOperation {
     }
 
     //根据文章id删除活动文章
-    @RequestMapping(value = "/daa",method = RequestMethod.DELETE)
+    @RequestMapping(value = "/daa", method = RequestMethod.DELETE)
     @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> deleteActivityArticle(String[] articleId) {
@@ -178,16 +176,16 @@ public class DataOperation {
     }
 
     //批量获取活动文章
-    @RequestMapping(value = "/gaa",method = RequestMethod.GET)
-    @ResponseBody                                       //当前页号      一页的数据量
-    public PageInfo<ActivityArticle> getActivityArticle(int currentPage, int pageSize, HttpServletRequest request, String language) {
-        //若未传来language，
+    @RequestMapping(value = "/gaa", method = RequestMethod.GET)
+    @ResponseBody                                       //当前页号      一页的数据量     文章所属专题
+    public PageInfo<ActivityArticle> getActivityArticle(int currentPage, int pageSize, String part, HttpServletRequest request, String language) {
+        //若未传来language，，则为后台管理查询
         if (language == null || language.equals("")) {
             //获取用户设置的语言
             language = getLanguage(request);
         }
         try {
-            return dataService.getActivityArticle(language != null ? language : defaultLanguage, currentPage, pageSize);
+            return dataService.getActivityArticle(language != null ? language : defaultLanguage, currentPage, pageSize,part);
         } catch (Exception e) {
             logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n根据用户设置语言批量获取活动文章\n" + e);
             e.printStackTrace();
@@ -196,7 +194,7 @@ public class DataOperation {
     }
 
     //修改活动文章
-    @RequestMapping(value = "/caa",method = RequestMethod.PUT)
+    @RequestMapping(value = "/caa", method = RequestMethod.PUT)
     @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> changeActivityArticle(ActivityArticle aa, String[] activityTime, MultipartFile entryForm, MultipartFile poster, HttpServletRequest request, HttpServletResponse response) {
@@ -204,48 +202,95 @@ public class DataOperation {
 
 
         //判断articleId是否已经存在，即此文章是否已经上传
-            try {
-                dataService.changeActivityArticle(aa, activityTime, entryForm, poster, request, response);
-                result.put("result", "1");
-            } catch (IOException e) {
-                logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n活动文章上传\n" + e);
-                e.printStackTrace();
-                result.put("result", "0");
-                //回滚
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            }
+        try {
+            dataService.changeActivityArticle(aa, activityTime, entryForm, poster, request, response);
+            result.put("result", "1");
+        } catch (IOException e) {
+            logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n活动文章上传\n" + e);
+            e.printStackTrace();
+            result.put("result", "0");
+            //回滚
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
         return result;
     }
 
 
     /***************************************************************  富文本普通文章 *************************************************************************************************************/
 
-    //活动文章上传
-//    @RequestMapping(value = "/uoa",method = RequestMethod.POST)
-//    @ResponseBody
-//    @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
-//    public Map<String, String> uploadOrdinaryArticle(ActivityArticle aa, String[] activityTime,  HttpServletRequest request, HttpServletResponse response) {
-//        Map<String, String> result = new HashMap<>();
-//        result.put("result", "0");
-//
-//        //判断articleId是否已经存在，即此文章是否已经上传
-//        if (!dataService.existArticleId(aa.getArticleId())) {
-//            try {
-//                dataService.uploadOrdinaryArticle(aa, activityTime,request, response);
-//                result.put("result", "1");
-//            } catch (IOException e) {
-//                logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n活动文章上传\n" + e);
-//                e.printStackTrace();
-//                //回滚
-//                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-//            }
-//        }
-//        return result;
-//    }
+    //普通文章上传
+    @RequestMapping(value = "/uoa", method = RequestMethod.POST)
+    @ResponseBody
+    @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
+    public Map<String, String> uploadOrdinaryArticle(OrdinaryArticle oa, HttpServletRequest request, HttpServletResponse response) {
+        Map<String, String> result = new HashMap<>();
+        System.out.println(oa);
+        //判断articleId是否已经存在，即此文章是否已经上传
+        if (!dataService.existOrdinaryArticleId(oa.getArticleId())) {
+            try {
+                dataService.uploadOrdinaryArticle(oa, request, response);
+                result.put("result", "1");
+            } catch (Exception e) {
+                logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n活动文章上传\n" + e);
+                e.printStackTrace();
+                result.put("result", "0");
+                //回滚
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            }
+        }
+        return result;
+    }
 
+    //根据普通文章id删除普通文章
+    @RequestMapping(value = "/doa", method = RequestMethod.DELETE)
+    @ResponseBody
+    @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
+    public Map<String, String> deleteOrdinaryArticle(String[] articleId) {
+        Map<String, String> result = new HashMap<>();
+        try {
+            dataService.deleteOrdinaryArticle(articleId);
+            result.put("result", "1");
+        } catch (Exception e) {
+            logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n根据文章id删除活动文章\n" + e);
+            e.printStackTrace();
+            result.put("result", "0");
+            //回滚
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
+        return result;
+    }
 
+    //根据普通文章id获取普通文章
+    @GetMapping(value = "/gooa")
+    @ResponseBody
+    public OrdinaryArticle getOneOrdinaryArticle(String articleId) {
+        //获取用户设置的语言
+        try {
+            return dataService.getOneOrdinaryArticle(articleId);
+        } catch (Exception e) {
+            logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n根据文章id获取活动文章\n" + e);
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-
+    //批量获取普通文章
+    @RequestMapping(value = "/goa", method = RequestMethod.GET)
+    @ResponseBody                                       //当前页号      一页的数据量     文章所属专题
+    public PageInfo<OrdinaryArticle> getOrdinaryArticle(int currentPage, int pageSize, String part, HttpServletRequest request, String language) {
+        //若未传来language，则为后台管理查询
+        if (language == null || language.equals("")) {
+            //获取用户设置的语言
+            language = getLanguage(request);
+        }
+        try {
+            return dataService.getOrdinaryArticle(language != null ? language : defaultLanguage, currentPage, pageSize,part);
+        } catch (Exception e) {
+            logger.error("\n\n*****************************************************************************************************************************************************************************" + "\n\n根据用户设置语言批量获取活动文章\n" + e);
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 }
 

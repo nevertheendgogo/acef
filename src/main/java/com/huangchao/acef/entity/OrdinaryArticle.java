@@ -5,10 +5,11 @@ package com.huangchao.acef.entity;
  */
 public class OrdinaryArticle {
     private String articleId;
+    private String part;//所属专题
     private String language;
     private String title;
     private String author;
-    private String dislpayTime;//发布时间
+    private String displayTime;//发布时间
     private String content;//文章内容
 
     public String getArticleId() {
@@ -17,6 +18,14 @@ public class OrdinaryArticle {
 
     public void setArticleId(String articleId) {
         this.articleId = articleId;
+    }
+
+    public String getPart() {
+        return part;
+    }
+
+    public void setPart(String part) {
+        this.part = part;
     }
 
     public String getLanguage() {
@@ -43,12 +52,12 @@ public class OrdinaryArticle {
         this.author = author;
     }
 
-    public String getDislpayTime() {
-        return dislpayTime;
+    public String getDisplayTime() {
+        return displayTime;
     }
 
-    public void setDislpayTime(String dislpayTime) {
-        this.dislpayTime = dislpayTime;
+    public void setDisplayTime(String displayTime) {
+        this.displayTime = displayTime;
     }
 
     public String getContent() {
@@ -59,12 +68,13 @@ public class OrdinaryArticle {
         this.content = content;
     }
 
-    public OrdinaryArticle(String articleId, String language, String title, String author, String dislpayTime, String content) {
+    public OrdinaryArticle(String articleId, String part, String language, String title, String author, String displayTime, String content) {
         this.articleId = articleId;
+        this.part = part;
         this.language = language;
         this.title = title;
         this.author = author;
-        this.dislpayTime = dislpayTime;
+        this.displayTime = displayTime;
         this.content = content;
     }
 

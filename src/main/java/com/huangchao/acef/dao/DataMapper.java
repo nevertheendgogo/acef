@@ -57,11 +57,14 @@ public interface DataMapper {
     //查找富文本文章上传的图片
     String[] getRiceTextPictures(String articleId);
 
-    //    判断articleId是否已经存在，即此文章是否已经上传
+    //    判断articleId是否已经存在，即此活动文章是否已经上传
     String existArticleId(String articleId);
 
+   //    判断articleId是否已经存在，即此普通文章是否已经上传
+    String existOrdinaryArticleId(String articleId);
+
     //获取活动文章
-    List<ActivityArticle> getActivityArticle(@Param("language")String language);
+    List<ActivityArticle> getActivityArticle(@Param("language")String language,@Param("part")String part);
 
     //根据文章id删除活动文章
     void deleteActivityArticle(String articleId);
@@ -71,4 +74,16 @@ public interface DataMapper {
 
     //将修改后活动信息数据存进数据库
     void changeActivityArticle(ActivityArticle aa);
+
+    //普通文章上传
+    void uploadOrdinaryArticle(OrdinaryArticle oa);
+
+    //根据普通文章id删除普通文章
+    void deleteOrdinaryArticle(String[] articleId);
+
+    //根据普通文章id获取普通文章
+    OrdinaryArticle getOneOrdinaryArticle(String articleId);
+
+    //批量获取普通文章
+    List<OrdinaryArticle> getOrdinaryArticle(String language, String part);
 }

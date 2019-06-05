@@ -3,6 +3,7 @@ package com.huangchao.acef.entity;
 
 public class ActivityArticle {
     private String articleId;
+    private String part;//文章所属专题
     private String language;
     private String title;
     private String author;
@@ -19,6 +20,14 @@ public class ActivityArticle {
 
     public void setArticleId(String articleId) {
         this.articleId = articleId;
+    }
+
+    public String getPart() {
+        return part;
+    }
+
+    public void setPart(String part) {
+        this.part = part;
     }
 
     public String getLanguage() {
@@ -93,8 +102,9 @@ public class ActivityArticle {
         this.posterUrl = posterUrl;
     }
 
-    public ActivityArticle(String articleId, String language, String title, String author, String displayTime, String activityStartTime, String activityEndTime, String content, String entryFormUrl, String posterUrl) {
+    public ActivityArticle(String articleId, String part, String language, String title, String author, String displayTime, String activityStartTime, String activityEndTime, String content, String entryFormUrl, String posterUrl) {
         this.articleId = articleId;
+        this.part = part;
         this.language = language;
         this.title = title;
         this.author = author;
