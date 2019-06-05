@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.huangchao.acef.dao.ActivityArticleRichTextMapper">
+
+    <!--***********************************************************************  增 *************************************************************************************-->
+
+    <!--活动文章保存-->
+    <insert id="addActivityArticle">
+        insert into activityArticle values (#{articleId},#{part},#{language},#{title},#{author},#{displayTime},#{activityStartTime},#{activityEndTime},#{entryFormUrl},#{posterUrl},#{content})
+    </insert>
+
+    <!--***************************************************************************  删  *********************************************************************************-->
+
+    <!--根据文章id删除活动文章-->
+    <delete id="deleteActivityArticle">
+        delete from activityArticle where articleId =#{articleId}
+    </delete>
+
+    <!--***************************************************************************  查  *********************************************************************************-->
+
+   <!--根据文章id获取活动文章-->
+    <select id="getOneActivityArticle" resultType="ActivityArticle">
+        select * from activityArticle where articleId=#{articleId}
+    </select>
+
+    <!--批量获取活动文章-->
+    <select id="getActivityArticle" resultType="ActivityArticle">
+
+        <if test="language!=null">
+            select * from activityArticle where language =#{language} and part=#{part}
+        </if>
+        <if test="language==null">
+            select articleId,title,author,displayTime from activityArticle where part=#{part}
+        </if>
+    </select>
+
+    <!--判断articleId是否已经存在，即此文章是否已经上传-->
+    <select id="existArticleId" resultType="String">
+        select articleId from activityArticle where articleId=#{articleId}
+    </select>
+
+    <!--***************************************************************************  改  *********************************************************************************-->
+
+    <!--更新协会活动文章-->
+    <update id="changeActivityArticle">
+        update activityArticle set
+        language=#{language},
+        title=#{title},
+        author=#{author},
+        displayTime=#{displayTime},
+        activityStartTime=#{activityStartTime},
+        activityEndTime=#{activityEndTime},
+        entryFormUrl=#{entryFormUrl},
+        posterUrl=#{posterUrl},
+        content=#{content}
+        where articleId=#{articleId}
+    </update>
+
+</mapper>

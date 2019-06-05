@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.huangchao.acef.dao.OrdinaryArticleRichTextMapper">
+
+    <!--***********************************************************************  增 *************************************************************************************-->
+
+    <!--普通文章上传-->
+    <insert id="uploadOrdinaryArticle">
+        insert into ordinary_article values(#{articleId},#{part},#{language},#{title},#{author},#{displayTime},#{content})
+    </insert>
+
+    <!--***************************************************************************  删  *********************************************************************************-->
+
+    <!--根据普通文章id删除普通文章-->
+    <delete id="deleteOrdinaryArticle">
+        delete from ordinary_article where articleId in
+        <foreach collection="array" item="articleId" separator="," open="(" close=")">
+            #{articleId}
+        </foreach>
+    </delete>
+
+    <!--***************************************************************************  查  *********************************************************************************-->
+
+    <!--根据文章id获取普通文章-->
+    <select id="getOneOrdinaryArticle" resultType="OrdinaryArticle">
+        select * from ordinary_article where articleId=#{articleId}
+    </select>
+
+    <!--批量获取普通文章-->
+    <select id="getOrdinaryArticle" resultType="OrdinaryArticle">
+
+        <if test="language!=null">
+            select * from ordinary_article where language =#{language} and part=#{part}
+        </if>
+        <if test="language==null">
+            select articleId,title,author,displayTime from ordinary_article where part=#{part}
+        </if>
+    </select>
+
+    <!--判断articleId是否已经存在，即此文章是否已经上传-->
+    <select id="existOrdinaryArticleId" resultType="String">
+        select articleId from ordinary_article where articleId=#{articleId}
+    </select>
+
+    <!--***************************************************************************  改  *********************************************************************************-->
+
+    <!--更新普通文章-->
+    <update id="changeOrdinaryArticle">
+        update ordinary_article set
+        language=#{language},
+        title=#{title},
+        author=#{author},
+        displayTime=#{displayTime},
+        part=#{part},
+        content=#{content}
+        where articleId=#{articleId}
+    </update>
+
+</mapper>

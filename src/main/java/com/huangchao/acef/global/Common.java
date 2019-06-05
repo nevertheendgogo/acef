@@ -10,6 +10,7 @@ import java.io.IOException;
 
 public class Common {
 
+
                                             //图片映射路径  文件存放根路径  文件存放目录
     public static void deletePreviousPicture(String url,String filePath,String imgPath) throws IOException {
         if (url != null) {
