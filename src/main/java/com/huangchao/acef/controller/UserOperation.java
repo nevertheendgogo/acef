@@ -37,7 +37,7 @@ public class UserOperation {
     @Value("${authorizationCode}")
     String authorizationCode;// 邮箱第三方登录授权码
     //常用ip地址
-    private Set<String> ipAddress=new HashSet<>();
+    private Set<String> ipAddress = new HashSet<>();
 
     //登录状态查询
     @RequestMapping(value = "/isLogin", method = RequestMethod.GET)
@@ -78,7 +78,7 @@ public class UserOperation {
                 //若cookie为空则是未登录
                 result.put("result", "0");
             }
-        }else  //非常用ip地址
+        } else  //非常用ip地址
             result.put("result", "2");
 
         return result;
@@ -91,40 +91,57 @@ public class UserOperation {
         //用于返回登录结果
         Map<String, String> result = new HashMap<>();
 
-        //检查用户是否存在
-        //从数据库获取登录用户账户信息
-        User userFinded;
-        if (user.getEmailAccount() != null && user.getPassword() != null && !user.getEmailAccount().equals("") && !user.getPassword().equals(""))
-            userFinded = userService.findUserByEmailAccount(user.getEmailAccount());
-        else {
-            result.put("result", "4");
-            return result;
-        }
+        if (request.getSession().getAttribute("times")==null||(int) request.getSession().getAttribute("times") > 0) {
 
-        if (userFinded != null) {
-            //判断密码是否正确
-            if (userFinded.getPassword() != null && Md5.encode(user.getPassword()).equals(userFinded.getPassword())) {
-                //身份确认
-                result.put("result", "1");
-                //获取管理员id
-                String id = userService.findIdByEmailAccount(user.getEmailAccount());
-                //本次会话保存登录状态
-                request.getSession().setAttribute("loginUserId", id);
-                //存储cookie,完成记住用户登录状态功能:
-                CookieUtil.saveCookie("loginUserId", id, response, survivalTime);
-                //将当前ip地址存入常用ip地址
-                ipAddress.add(IpUtils.getIpAddr(request));
-                return result;
-            } else {
-                //密码错误
-                result.put("result", "2");
+            //检查用户是否存在
+            //从数据库获取登录用户账户信息
+            User userFinded;
+            if (user.getEmailAccount() != null && user.getPassword() != null && !user.getEmailAccount().equals("") && !user.getPassword().equals(""))
+                userFinded = userService.findUserByEmailAccount(user.getEmailAccount());
+            else {
+                result.put("result", "4");
                 return result;
             }
-        } else {
-            //未找到该用户
-            result.put("result", "3");
-            return result;
+
+            if (userFinded != null) {
+                //判断密码是否正确
+                if (userFinded.getPassword() != null && Md5.encode(user.getPassword()).equals(userFinded.getPassword())) {
+                    //身份确认
+                    result.put("result", "1");
+                    //获取管理员id
+                    String id = userService.findIdByEmailAccount(user.getEmailAccount());
+                    //本次会话保存登录状态
+                    request.getSession().setAttribute("loginUserId", id);
+                    //存储cookie,完成记住用户登录状态功能:
+                    CookieUtil.saveCookie("loginUserId", id, response, survivalTime);
+                    //将当前ip地址存入常用ip地址
+                    ipAddress.add(IpUtils.getIpAddr(request));
+                    return result;
+                } else {
+                    //密码错误
+                    result.put("result", "2");
+                    //设置
+                    if (request.getSession().getAttribute("times") == null)
+                        request.getSession().setAttribute("times", 4);
+                    else
+                        request.getSession().setAttribute("times", (int) request.getSession().getAttribute("times") - 1);
+
+                    return result;
+                }
+            } else {
+                //未找到该用户
+                result.put("result", "3");
+
+            }
+
+        }else{
+            //超过登陆次数
+            result.put("result", "5");
+            //半小时后登陆
+            request.getSession().setMaxInactiveInterval(1800);
         }
+
+        return result;
     }
 
     /****************修改密码**************/
@@ -154,7 +171,7 @@ public class UserOperation {
         //设置可以提交的次数
         request.getSession().setAttribute("times", "2");
         //有效时间为3分钟
-        request.getSession().setMaxInactiveInterval(18);
+        request.getSession().setMaxInactiveInterval(180);
 
         //保存发送结果
         result.put("result", result1 + "");
@@ -244,7 +261,6 @@ public class UserOperation {
         }
         return request.getRemoteAddr();
     }
-
 
 }
 
