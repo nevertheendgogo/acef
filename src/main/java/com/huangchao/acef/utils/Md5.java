@@ -38,4 +38,7 @@ public class Md5 {
         return "i" + hexValue.toString() + "l";
     }
 
+//    public static void main(String[] args) {
+//        System.out.println(Md5.encode("134112hhhbbb"));
+//    }
 }
