@@ -19,4 +19,6 @@ public interface UserMapper {
     //保存用户账号密码
     void  addUser(User user);
 
+    //修改密码
+    int changePassword(String emailAccount, String password);
 }

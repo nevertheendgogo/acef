@@ -8,6 +8,7 @@ import com.huangchao.acef.entity.Feedback;
 import com.huangchao.acef.entity.GetMemberIntroduction;
 import com.huangchao.acef.entity.MemberIntroduction;
 import com.huangchao.acef.entity.User;
+import com.huangchao.acef.utils.Md5;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -42,5 +43,10 @@ public class UserService {
     //保存用户账号密码
     public void addUser(User user) {
         mapper.addUser(user);
+    }
+
+    //修改密码
+    public int changePassword(String emailAccount, String newPassword) {
+        return mapper.changePassword(emailAccount, Md5.encode(newPassword));
     }
 }

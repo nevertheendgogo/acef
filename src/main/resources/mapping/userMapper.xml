@@ -31,4 +31,8 @@
 
     <!--***************************************************************************  改  *********************************************************************************-->
 
+    <update id="changePassword">
+        update user set password=#{password} where emailAccount=#{emailAccount}
+    </update>
+
 </mapper>

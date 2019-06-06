@@ -51,3 +51,8 @@ articleImgPath: aip/
 entryFormPath: ef/
 #友情链接图片保存路径，相对图片保存路径
 friendlyLinkPath: fl/
+
+#邮箱验证码法发送人邮箱
+fromEmail: 15766237659@163.com
+#邮箱第三方登录授权码
+authorizationCode: hhhbbb134112
