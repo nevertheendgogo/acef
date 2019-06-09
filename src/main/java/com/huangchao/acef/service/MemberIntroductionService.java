@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
+
+import static com.huangchao.acef.global.Common.deletePreviousPicture;
 
 /**
  * 本类为成员信息持久层映射类
@@ -25,6 +28,15 @@ public class MemberIntroductionService {
     //注入本机公网ip地址
     @Value("${IpAddress}")
     String IpAddress;
+    //注入图片保存路径
+    @Value("${filePath}")
+    String filePath;
+    //注入图片保存路径，相对根路径
+    @Value("${imgPath}")
+    String imgPath;
+    //注入成员介绍图片存放路径，相对图片保存路径
+    @Value("${memberIntroductionPath}")
+    String memberIntroductionPath;
 
     //保存成员展示信息
     public void memberIntroductionSave(MemberIntroduction memberIntroduction) {
@@ -81,7 +93,13 @@ public class MemberIntroductionService {
     }
 
     //后台管理成员信息删除
-    public void deleteMemberIntroduction(int[] idList) {
+    public void deleteMemberIntroduction(int[] idList, String[] imgPaths) throws IOException {
+        if (imgPaths != null) {
+            for (String imgUrl : imgPaths) {
+                //删除图片
+                deletePreviousPicture(imgUrl, filePath, imgPath + memberIntroductionPath);
+            }
+        }
         memberIntroductionMapper.deleteMemberIntroduction(idList);
     }
 

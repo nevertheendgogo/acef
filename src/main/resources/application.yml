@@ -8,12 +8,23 @@ spring:
     view:
       prefix:
       suffix: .html
-#配置服务器端口号
-server:
-  port: 80
-  servlet:
-    #配置访问前缀
-    context-path: /acef
+
+  #配置数据源
+  datasource:
+    username:  root
+    password:  134112+hhhbb.*Z
+    url: jdbc:mysql://localhost:3306/acef?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #Hikari连接池的设置
+    hikari:
+      minimum-idle: 5 #最小连接
+      maximum-pool-size: 30 #最大连接
+      auto-commit: false #自动提交
+      idle-timeout: 30000 #最大空闲时长(30秒)
+      pool-name: DatebookHikariCP #连接池名
+      max-lifetime: 900000 #最大生命周期
+      connection-timeout: 4500 #连接超时时间
+      connection-test-query: SELECT 1 #心跳检测
 
 #配置mybatis
 mybatis:
@@ -30,15 +41,25 @@ pagehelper:
   pageSizeZero: true
   params: count=countSql
 
+#配置服务器端口号
+server:
+  port: 80
+  servlet:
+    #配置访问前缀
+    context-path: /acef
+
 
 #配置cookie基准生存期（7天）
 survivalTime: 604800
+
 #默认语言
 defaultLanguage: Chinese
+
 #请求所能携带的最大单个文件大小
 maxFileSize: 20MB
 #请求的最大大小
 maxRequestSize: 200MB
+
 #tomcat文件映射路径名
 mapPath: /file/
 #图片保存路径，相对根路径
@@ -51,6 +72,10 @@ articleImgPath: aip/
 entryFormPath: ef/
 #友情链接图片保存路径，相对图片保存路径
 friendlyLinkPath: fl/
+#成员介绍图片存放路径，相对图片保存路径
+memberIntroductionPath: mi/
+#轮播图或协会介绍图
+SlideshowOrAssociationIntroductionPath: ssoai/
 
 #邮箱验证码法发送人邮箱
 fromEmail: 15766237659@163.com

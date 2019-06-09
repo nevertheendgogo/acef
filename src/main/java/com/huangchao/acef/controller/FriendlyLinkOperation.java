@@ -29,7 +29,7 @@ public class FriendlyLinkOperation {
     @Autowired
     private FriendlyLinkService friendlyLinkService;
 
-    private final static Logger logger = (Logger) LoggerFactory.getLogger(ActivityArticleRichTextOperation.class);
+    private final static Logger logger = (Logger) LoggerFactory.getLogger(FriendlyLinkOperation.class);
 
     //上传友情链接
     @RequestMapping(value = "/u",method = RequestMethod.POST)

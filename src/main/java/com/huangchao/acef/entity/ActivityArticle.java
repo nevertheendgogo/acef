@@ -18,6 +18,23 @@ public class ActivityArticle {
         return articleId;
     }
 
+    @Override
+    public String toString() {
+        return "ActivityArticle{" +
+                "articleId='" + articleId + '\'' +
+                ", part='" + part + '\'' +
+                ", language='" + language + '\'' +
+                ", title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                ", displayTime='" + displayTime + '\'' +
+                ", activityStartTime='" + activityStartTime + '\'' +
+                ", activityEndTime='" + activityEndTime + '\'' +
+                ", content='" + content + '\'' +
+                ", entryFormUrl='" + entryFormUrl + '\'' +
+                ", posterUrl='" + posterUrl + '\'' +
+                '}';
+    }
+
     public void setArticleId(String articleId) {
         this.articleId = articleId;
     }

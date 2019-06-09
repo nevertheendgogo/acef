@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,12 +52,15 @@ public class MemberIntroductionOperation {
     //注入tomcat文件映射路径名
     @Value("${mapPath}")
     String mapPath;
+    //注入成员介绍图片存放路径，相对图片保存路径
+    @Value("${memberIntroductionPath}")
+    String memberIntroductionPath;
 
     //成员信息上传
     @RequestMapping(value = "/u", method = RequestMethod.POST)
     @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
-    public Map<String, Object> memberIntroductionSave(MemberIntroduction memberIntroduction, MultipartFile picture) {
+    public Map<String, Object> uploadMemberIntroduction(MemberIntroduction memberIntroduction, MultipartFile picture) {
         //用于返回保存结果
         Map<String, Object> result = new HashMap<>();
 
@@ -80,16 +84,16 @@ public class MemberIntroductionOperation {
     }
 
     //后台管理成员信息删除
-    @RequestMapping(value = "/d",method = RequestMethod.DELETE)
+    @RequestMapping(value = "/d", method = RequestMethod.DELETE)
     @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
-    public Map<String, String> deleteMemberIntroduction(int[] idList, String[] imgPaths) {
+    public Map<String, String> deleteMemberIntroduction(int[] idList, @RequestParam("imgPaths") String[] imgPaths) {
         //用于返回结果
         Map<String, String> result = new HashMap<>();
 
         try {
             //执行删除操作
-            memberIntroductionService.deleteMemberIntroduction(idList);
+            memberIntroductionService.deleteMemberIntroduction(idList, imgPaths);
             if (imgPaths != null) {
                 for (String s : imgPaths) {
                     //删除图片
@@ -108,7 +112,7 @@ public class MemberIntroductionOperation {
     }
 
     //前端展示成员信息获取
-    @RequestMapping(value = "/gaf",method = RequestMethod.GET)
+    @RequestMapping(value = "/gaf", method = RequestMethod.GET)
     @ResponseBody                                                            //当前页号  一页的数据量
     public PageInfo<GetMemberIntroduction> getAllShowMemberIntroduction(int currentPage, int pageSize, HttpServletRequest request) {
         String language = getLanguage(request);
@@ -116,21 +120,21 @@ public class MemberIntroductionOperation {
     }
 
     //后台管理展示成员信息获取
-    @RequestMapping(value = "/gab",method = RequestMethod.GET)
+    @RequestMapping(value = "/gab", method = RequestMethod.GET)
     @ResponseBody                                                           //当前页号   一页的数据量
     public PageInfo<MemberIntroduction> getAllManageMemberIntroduction(int currentPage, int pageSize) {
         return memberIntroductionService.getAllManageMemberIntroduction(currentPage, pageSize);
     }
 
     //后台管理单个成员信息获取
-    @RequestMapping(value = "/gob",method = RequestMethod.GET)
+    @RequestMapping(value = "/gob", method = RequestMethod.GET)
     @ResponseBody
     public MemberIntroduction getOneManageMemberIntroduction(int id) {
         return memberIntroductionService.getOneManageMemberIntroduction(id);
     }
 
     //后台管理成员信息修改
-    @RequestMapping(value = "/c",method = RequestMethod.PUT)
+    @RequestMapping(value = "/c", method = RequestMethod.PUT)
     @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> changeMemberIntroduction(MemberIntroduction memberIntroduction, MultipartFile picture) {
@@ -140,7 +144,7 @@ public class MemberIntroductionOperation {
             //若重新上传了图片
             if (picture != null && !picture.isEmpty()) {
                 //删除图片
-                Common.deletePreviousPicture(memberIntroduction.getImgPath(), filePath, imgPath);
+                Common.deletePreviousPicture(memberIntroduction.getImgPath(), filePath, imgPath + memberIntroductionPath);
                 //图片处理
                 memberIntroduction = pictureDispose(memberIntroduction, picture);
 
@@ -170,9 +174,9 @@ public class MemberIntroductionOperation {
         //重新生成图片名
         fileName = UUID.randomUUID() + suffixName;
         //设置图片映射路径
-        memberIntroduction.setImgPath(mapPath + imgPath + fileName);
+        memberIntroduction.setImgPath(mapPath + imgPath + memberIntroductionPath + fileName);
         //保存图片到指定文件夹,可能出现io异常
-        picture.transferTo(new File(filePath + imgPath + fileName));
+        picture.transferTo(new File(filePath + imgPath + memberIntroductionPath + fileName));
         return memberIntroduction;
     }
 

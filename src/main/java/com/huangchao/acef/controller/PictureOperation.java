@@ -32,7 +32,7 @@ public class PictureOperation {
     //获取业务层操作类
     @Autowired
     private PictureService pictureService;
-    private final static Logger logger = (Logger) LoggerFactory.getLogger(ActivityArticleRichTextOperation.class);
+    private final static Logger logger = (Logger) LoggerFactory.getLogger(PictureOperation.class);
     //注入默认界面语言
     @Value("${defaultLanguage}")
     String defaultLanguage;

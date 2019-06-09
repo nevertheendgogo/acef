@@ -29,7 +29,7 @@
         <!--日志输出编码格式化-->
         <encoder>
             <charset>UTF-8</charset>
-            //java类行号
+            <!--java类行号-->
             <pattern>%d %logger{36} %line %-5level- %msg%n</pattern>
         </encoder>
     </appender>
@@ -52,7 +52,7 @@
         <!--日志输出编码格式化-->
         <encoder>
             <charset>UTF-8</charset>
-            //java类行号
+            <!--java类行号-->
             <pattern>%d %logger{36} %line %-5level- %msg%n</pattern>
         </encoder>
     </appender>

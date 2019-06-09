@@ -47,7 +47,7 @@
 
     <!--更新协会介绍图片-->
     <update id="updateAssociationIntroduction">
-        update picture set url=#{url} where articleId=#{articleId}
+        update picture set url=#{url} where id=#{id}
     </update>
 
 </mapper>

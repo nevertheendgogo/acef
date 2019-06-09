@@ -28,7 +28,7 @@ public class FeedbackOperation {
     //意见反馈上传接口
     @RequestMapping(value = "/u",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String, String> setFeedback(Feedback feedback) {
+    public Map<String, String> uploadFeedback(Feedback feedback) {
         //用于保存保存结果
         Map<String, String> result = new HashMap<>();
         try {

@@ -16,9 +16,6 @@ public interface UserMapper {
     //查找用户信息
     User findUserById(String id);
 
-    //保存用户账号密码
-    void  addUser(User user);
-
     //修改密码
     int changePassword(String emailAccount, String password);
 }

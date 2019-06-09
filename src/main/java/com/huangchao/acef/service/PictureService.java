@@ -46,7 +46,10 @@ public class PictureService {
     String activityArticleImgPath;
     //统一cookie存活基准时间
     @Value("${survivalTime}")
-    private int survivalTime;
+    int survivalTime;
+    //轮播图或协会介绍图
+    @Value("${SlideshowOrAssociationIntroductionPath}")
+    String SlideshowOrAssociationIntroductionPath;
 
     //轮播图或协会介绍图上传
     public void uploadSlideshowOrAssociationIntroduction(MultipartFile[] slideshows, String part, Integer id, String url) throws IOException {
@@ -63,14 +66,14 @@ public class PictureService {
                 //设置图片映射路径
                 imgPaths.add(mapPath + imgPath + fileName);
                 //保存图片到指定文件夹,可能出现io异常
-                slideshow.transferTo(new File(filePath + imgPath + fileName));
+                slideshow.transferTo(new File(filePath + imgPath + SlideshowOrAssociationIntroductionPath + fileName));
             }
         }
 
         //若url不空则为更新协会介绍照片
         if (url != null && !url.equals("")) {
             //删除协会介绍图片
-            deletePreviousPicture(url, filePath, imgPath);
+            deletePreviousPicture(url, filePath, imgPath + SlideshowOrAssociationIntroductionPath);
             //保存更新的协会介绍数据到数据库
             pictureMapper.updateAssociationIntroduction(imgPaths.get(0), part, id);
         } else

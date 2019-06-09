@@ -107,7 +107,6 @@ public class ActivityArticleRichTextService {
         List<ActivityArticle> activityArticleList = activityArticleRichTextMapper.getActivityArticle(language, part);
         //使路径完整、并截断时间
         for (ActivityArticle s : activityArticleList) {
-            s.setEntryFormUrl("http://" + IpAddress + s.getEntryFormUrl());
             s.setPosterUrl("http://" + IpAddress + s.getPosterUrl());
             s.setDisplayTime(s.getDisplayTime().substring(0,10));
         }
@@ -160,9 +159,9 @@ public class ActivityArticleRichTextService {
             entryForm.transferTo(new File(filePath + entryFormPath + fileName));
             //删除原文件
             File file=new File(filePath + entryFormPath + fileName);
-            file.delete();
             //压缩文件
-            fileName=ZIPUtil.compress(filePath + entryFormPath + fileName);
+            fileName=ZIPUtil.compress(mapPath + entryFormPath + fileName);
+            file.delete();
             //设置报名表映射路径
             aa.setEntryFormUrl(fileName);
         }

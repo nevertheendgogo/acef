@@ -1,5 +1,21 @@
 create database acef;
+drop database acef;
 use acef;
+show tables;
+
+#普通文章
+CREATE TABLE `ordinary_article` (
+   `articleId` bigint(14) NOT NULL COMMENT '文章id',
+   `part` varchar(20) NOT NULL COMMENT '文章id',
+   `language` char(7) NOT NULL COMMENT '语言',
+   `title` varchar(80) DEFAULT NULL COMMENT '标题',
+   `author` varchar(80) DEFAULT NULL COMMENT '作者',
+   `displayTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发布时间',
+   `content` varchar(10000) DEFAULT NULL COMMENT '文章内容',
+   PRIMARY KEY (`articleId`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+select * from ordinary_article;
 
 #友情链接
 create table friendly_link(
@@ -8,6 +24,8 @@ create table friendly_link(
 	`link` varchar(100) not null comment'链接',
     `imgPath` varchar(55) not null comment'图片映射路径'
 )engine=InnoDB default charset=utf8mb4;
+
+select * from friendly_link;
 
 #富文本图片
 create table rich_text_picture(
@@ -19,6 +37,7 @@ create table rich_text_picture(
 #活动文章保存
 create table activityArticle(
 	`articleId` bigint(20) primary key comment'文章id', 
+    `part` varchar(20) not null comment'文章所属专题',
     `language` char(7) not null comment'语言',
     `title` varchar(80) comment'标题',
     `author` varchar(80) comment'作者',
@@ -30,6 +49,7 @@ create table activityArticle(
     `content` varchar(10000) comment'文章内容'
 )engine=InnoDB default charset=utf8mb4;
 
+select * from activityArticle;
 
 #(轮播图,协会介绍)
 create table picture(
@@ -39,16 +59,7 @@ create table picture(
     `createTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP comment'数据创建时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
-#创建注册用户表
-create table user(
-	`id` bigint(20) primary key auto_increment comment'自增id',
-	`emailAccount` varchar(30) unique not null comment'邮箱账号',
-    `password` varchar(34) not null comment'密码',
-    `createTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP comment'用户注册时间',
-    `updateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment'用户信息更新时间'
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+select * from picture;
 
 #创建数据表,存放成员展示信息
 create table show_member(
@@ -74,4 +85,14 @@ create table feedback(
     `title` varchar(80) comment'标题',
 	`description` varchar(1000) comment'反馈内容',
     `createTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP comment'反馈提交时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+#创建注册用户表
+create table user(
+	`id` bigint(20) primary key auto_increment comment'自增id',
+	`emailAccount` varchar(30) unique not null comment'邮箱账号',
+    `password` varchar(34) not null comment'密码',
+    `createTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP comment'用户注册时间',
+    `updateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment'用户信息更新时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
