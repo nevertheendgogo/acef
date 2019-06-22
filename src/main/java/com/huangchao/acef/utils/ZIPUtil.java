@@ -8,9 +8,6 @@ import java.util.zip.ZipOutputStream;
 
 public class ZIPUtil {
 
-    public static void main(String[] args) {
-        System.out.println(compress("E:\\file\\img\\aaip\\0ea68a01-09b8-4c8a-afea-3d209f172120.jpg"));
-    }
 
     /**
      * 压缩文件
@@ -18,7 +15,7 @@ public class ZIPUtil {
      * @param filePath 压缩路径
      */
 
-    public static String compress(String filePath) {
+    public static void compress(String filePath) {
         //生成新路径
         String newFilePath = filePath.substring(0, filePath.lastIndexOf(".")) + ".zip";
 
@@ -39,11 +36,9 @@ public class ZIPUtil {
             fileInputStream.close();
             zipOutputStream.closeEntry();
 
-            return newFilePath;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return null;
     }
 }

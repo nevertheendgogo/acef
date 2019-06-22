@@ -160,7 +160,10 @@ public class ActivityArticleRichTextService {
             //删除原文件
             File file=new File(filePath + entryFormPath + fileName);
             //压缩文件
-            fileName=ZIPUtil.compress(mapPath + entryFormPath + fileName);
+            ZIPUtil.compress(filePath + entryFormPath + fileName);
+            fileName=mapPath + entryFormPath + fileName;
+            fileName=fileName.substring(0,fileName.lastIndexOf("."))+".zip";
+            //删除原文件
             file.delete();
             //设置报名表映射路径
             aa.setEntryFormUrl(fileName);

@@ -4,7 +4,9 @@ import com.huangchao.acef.entity.*;
 import com.huangchao.acef.service.UserService;
 import com.huangchao.acef.utils.IpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -54,6 +56,13 @@ public class UserOperation {
     public Map<String, String> changePassword(String emailAccount, int code, String password, HttpServletRequest request) {
         return userService.changePassword(emailAccount,code,password,request);
 
+    }
+
+    //设置常用ip地址
+    @RequestMapping(value = "/sui/{ipAddr}/{code}",produces= MediaType.TEXT_HTML_VALUE+";charset=utf-8")
+    @ResponseBody
+    public String setCommonIp(@PathVariable("ipAddr") String ipAddr, @PathVariable("code") String code, HttpServletRequest request) {
+        return userService.setCommonIp(ipAddr, code, request);
     }
 
     @RequestMapping("/gip")

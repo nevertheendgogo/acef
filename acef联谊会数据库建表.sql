@@ -50,6 +50,8 @@ create table activityArticle(
 )engine=InnoDB default charset=utf8mb4;
 
 select * from activityArticle;
+drop table activityArticle;
+
 
 #(轮播图,协会介绍)
 create table picture(
@@ -75,6 +77,8 @@ create table show_member(
     `createTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP comment'数据创建时间',
     `updateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment'数据更新时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+select * from show_member;
 
 #意见反馈表
 create table feedback(

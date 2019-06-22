@@ -30,12 +30,12 @@
     <select id="getActivityArticle" resultType="ActivityArticle">
 
         <if test="language!=null">
-            select articleId,title,author,displayTime,activityStartTime,activityEndTime,posterUrl from activityArticle where
-            language =#{language} and part=#{part}
+            select articleId,title,author,displayTime,activityStartTime,activityEndTime,posterUrl,content from activityArticle where
+            language =#{language} and part=#{part} order by articleId desc
         </if>
         <if test="language==null">
-            select articleId,title,author,displayTime,activityStartTime,activityEndTime,posterUrl from activityArticle where
-            part=#{part}
+            select articleId,title,author,displayTime,activityStartTime,activityEndTime,posterUrl,content from activityArticle where
+            part=#{part} order by articleId desc
         </if>
     </select>
 

@@ -34,11 +34,11 @@
 
         <if test="language!=null">
             select articleId,title,author,displayTime from ordinary_article where
-            language =#{language} and part=#{part}
+            language =#{language} and part=#{part} order by articleId desc
         </if>
         <if test="language==null">
             select articleId,title,author,displayTime from ordinary_article where
-            part=#{part}
+            part=#{part} order by articleId desc
         </if>
     </select>
 

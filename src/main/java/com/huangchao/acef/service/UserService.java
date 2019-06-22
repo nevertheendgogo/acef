@@ -1,11 +1,13 @@
 package com.huangchao.acef.service;
 
+import ch.qos.logback.classic.Logger;
 import com.huangchao.acef.dao.UserMapper;
 import com.huangchao.acef.entity.User;
 import com.huangchao.acef.utils.CookieUtil;
 import com.huangchao.acef.utils.EmailUtil;
 import com.huangchao.acef.utils.IpUtils;
 import com.huangchao.acef.utils.Md5;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -37,7 +39,7 @@ public class UserService {
     String authorizationCode;// 邮箱第三方登录授权码
     //常用ip地址
     private static Set<String> ipAddress = new HashSet<>();
-
+    private final static Logger logger = (Logger) LoggerFactory.getLogger(UserService.class);
 
     //查找用户信息
     public User findUserByEmailAccount(String emailAccount) {
@@ -58,17 +60,23 @@ public class UserService {
     public Map<String, String> isLogin(HttpServletRequest request) {
         //用于返回查询结果,成功则返回1和昵称
         Map<String, String> result = new HashMap<>();
+
+//        logger.error("isLogin:\n");
         if (ipAddress.contains(IpUtils.getIpAddr(request))) {
 
             //获取从客户端携带过来的cookie
             Cookie[] cookies = request.getCookies();
             //从cookie的数组中查找指定名称的cookie
             Cookie cookie = CookieUtil.findCookie(cookies, "loginUserId");
+
+//            logger.error("ip地址：" + IpUtils.getIpAddr(request)+
+//                    "\ncookie里面的loginUserId："+cookie.getValue()+
+//                    "\nSession里面的loginUserId:"+loginUserId+"\n\n");
+
             //若存在
             if (cookie != null) {
                 //如果服务器本次会话保存有登陆状态，判断loginUserId是否和cookie中的id一致
                 String loginUserId = (String) request.getSession().getAttribute("loginUserId");
-
                 if (loginUserId != null) {
                     //若一致则cookie登陆有效
                     if (loginUserId.equals(cookie.getValue()))
@@ -76,15 +84,17 @@ public class UserService {
                     else
                         result.put("result", "0");
 
-                } else {
-                    //若为空，则在数据库查询，查询成功后保存到本次会话session中
-                    User user = findUserById(cookie.getValue());
-                    if (user.getId() != null) {
-                        request.getSession().setAttribute("loginUserId", user.getId());
-                        result.put("result", "1");
-                    } else
-                        result.put("result", "0");
                 }
+//                else {
+//                    //七天自动登录代码实现
+//                    //若为空，则在数据库查询，查询成功后保存到本次会话session中
+//                    User user = findUserById(cookie.getValue());
+//                    if (user.getId() != null) {
+//                        request.getSession().setAttribute("loginUserId", user.getId());
+//                        result.put("result", "1");
+//                    } else
+                result.put("result", "0");
+//                }
 
             } else {
                 //若cookie为空则是未登录
@@ -101,54 +111,82 @@ public class UserService {
         //用于返回登录结果
         Map<String, String> result = new HashMap<>();
 
-        if (request.getSession().getAttribute("times")==null||(int) request.getSession().getAttribute("times") > 0) {
+        //判断是否是常用ip地址登录
+        if (ipAddress.contains(IpUtils.getIpAddr(request))) {
 
-            //检查用户是否存在
-            //从数据库获取登录用户账户信息
-            User userFinded;
-            if (user.getEmailAccount() != null && user.getPassword() != null && !user.getEmailAccount().equals("") && !user.getPassword().equals(""))
-                userFinded = findUserByEmailAccount(user.getEmailAccount());
-            else {
-                result.put("result", "4");
-                return result;
-            }
+            if (request.getSession().getAttribute("times") == null || (int) request.getSession().getAttribute("times") > 0) {
 
-            if (userFinded != null) {
-                //判断密码是否正确
-                if (userFinded.getPassword() != null && Md5.encode(user.getPassword()).equals(userFinded.getPassword())) {
-                    //身份确认
-                    result.put("result", "1");
-                    //获取管理员id
-                    String id = findIdByEmailAccount(user.getEmailAccount());
-                    //本次会话保存登录状态
-                    request.getSession().setAttribute("loginUserId", id);
-                    //存储cookie,完成记住用户登录状态功能:
-                    CookieUtil.saveCookie("loginUserId", id, response, survivalTime);
-                    //将当前ip地址存入常用ip地址
-                    ipAddress.add(IpUtils.getIpAddr(request));
-                    return result;
-                } else {
-                    //密码错误
-                    result.put("result", "2");
-                    //设置
-                    if (request.getSession().getAttribute("times") == null)
-                        request.getSession().setAttribute("times", 4);
-                    else
-                        request.getSession().setAttribute("times", (int) request.getSession().getAttribute("times") - 1);
-
+                //检查用户是否存在
+                //从数据库获取登录用户账户信息
+                User userFinded;
+                if (user.getEmailAccount() != null && user.getPassword() != null && !user.getEmailAccount().equals("") && !user.getPassword().equals(""))
+                    userFinded = findUserByEmailAccount(user.getEmailAccount());
+                else {
+                    result.put("result", "4");
                     return result;
                 }
+
+                if (userFinded != null) {
+                    //判断密码是否正确
+                    if (userFinded.getPassword() != null && Md5.encode(user.getPassword()).equals(userFinded.getPassword())) {
+                        //身份确认
+                        result.put("result", "1");
+                        //获取管理员id
+                        String id = findIdByEmailAccount(user.getEmailAccount());
+                        //本次会话保存登录状态
+                        request.getSession().setAttribute("loginUserId", id);
+                        //存储cookie,完成记住用户登录状态功能:
+                        CookieUtil.saveCookie("loginUserId", id, response, survivalTime);
+                        //登录成功后把可登录次数重置
+                        request.getSession().setAttribute("times", 5);
+                        //将当前ip地址存入常用ip地址
+                        ipAddress.add(IpUtils.getIpAddr(request));
+                        logger.error("login:\nip地址：" + IpUtils.getIpAddr(request));
+                        //最多允许存储3个常用IP地址
+                        if (ipAddress.size() >= 4) {
+                            ipAddress.remove(ipAddress.toArray()[0]);
+                        }
+
+                        return result;
+                    } else {
+                        //密码错误
+                        result.put("result", "2");
+                        //设置
+                        if (request.getSession().getAttribute("times") == null)
+                            request.getSession().setAttribute("times", 4);
+                        else
+                            request.getSession().setAttribute("times", (int) request.getSession().getAttribute("times") - 1);
+
+                        return result;
+                    }
+                } else {
+                    //未找到该用户
+                    result.put("result", "3");
+
+                }
+
             } else {
-                //未找到该用户
-                result.put("result", "3");
-
+                //超过登陆次数
+                result.put("result", "5");
+                //半小时后登陆
+                request.getSession().setMaxInactiveInterval(1800);
             }
+        } else {
+            //非常用ip地址登录
+            //进行邮箱身份验证
+            //设置邮件内容
+            //生成验证码
+            int code = (int) (Math.random() * 10000);
+            //确保四位
+            if (code < 1000)
+                code += 1000;
+            //保存验证码到session
+            request.getSession().setAttribute("code", code + "");
+            String content = "<html><head></head><body><h1>请点击如下链接验证身份，验证成功后可返回登录界面登录</h1><h3>http://huangchaoweb.cn/acef/user/sui/"
+                    + IpUtils.getIpAddr(request) + "/" + code + "</h3></body></html>";
+            new EmailUtil(fromEmail, user.getEmailAccount(), code + "", authorizationCode).run("首次登录身份验证", content);
+            result.put("result", "6");
 
-        }else{
-            //超过登陆次数
-            result.put("result", "5");
-            //半小时后登陆
-            request.getSession().setMaxInactiveInterval(1800);
         }
 
         return result;
@@ -247,5 +285,29 @@ public class UserService {
         return result;
 
     }
+
+    //设置常用IP地址
+    public String setCommonIp(String ipAddr,String code,HttpServletRequest request) {
+
+        logger.error("setCommonIp:\nip地址：" + ipAddr);
+        if (code!=null&&request.getSession().getAttribute("code")!=null){
+            if (code.equals(request.getSession().getAttribute("code"))){
+                //将当前ip地址存入常用ip地址
+                ipAddress.add(ipAddr);
+                //最多允许存储3个常用IP地址
+                if (ipAddress.size() >= 4) {
+                    ipAddress.remove(ipAddress.toArray()[0]);
+                }
+                //清除验证码信息
+                request.getSession().setAttribute("code",null);
+                return "验证成功，可返回登录界面登录";
+            }
+        }else
+            //非法破解，清除所有信息，保留黑名单实现
+            request.getSession().setMaxInactiveInterval(0);
+        return "别试了，成功的几率很小，哈哈哈";
+
+    }
+
 
 }

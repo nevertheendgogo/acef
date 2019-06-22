@@ -27,7 +27,7 @@
 
     <!--意见反馈信息获取接口-->
     <select id="getFeedback" resultType="Feedback">
-        select * from feedback
+        select * from feedback order by id desc
     </select>
 
 </mapper>
