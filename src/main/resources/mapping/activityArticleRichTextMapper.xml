@@ -23,7 +23,7 @@
 
     <!--根据文章id获取活动文章-->
     <select id="getOneActivityArticle" resultType="ActivityArticle">
-        select * from activityArticle where articleId=#{articleId}
+        select * from activityArticle where articleId=#{articleId} limit 1
     </select>
 
     <!--批量获取活动文章-->

@@ -12,23 +12,23 @@
 
     <!--查找用户-->
     <select id="findUserByEmailAccount" resultType="User">
-        select id,password from user where emailAccount = #{emailAccount}
+        select id,password from user where emailAccount = #{emailAccount} limit 1
     </select>
 
     <!--查找用户-->
     <select id="findUserById" resultType="User">
-        select * from user where id = #{id}
+        select * from user where id = #{id} limit 1
     </select>
 
     <!--查找用户id-->
     <select id="findIdByEmailAccount" resultType="String">
-        select id from user where emailAccount = #{emailAccount}
+        select id from user where emailAccount = #{emailAccount} limit 1
     </select>
 
     <!--***************************************************************************  改  *********************************************************************************-->
 
     <update id="changePassword">
-        update user set password=#{password} where emailAccount=#{emailAccount}
+        update user set password=#{password} where emailAccount=#{emailAccount} limit 1
     </update>
 
 </mapper>

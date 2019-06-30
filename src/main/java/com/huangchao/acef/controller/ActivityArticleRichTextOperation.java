@@ -7,7 +7,6 @@ import com.huangchao.acef.service.ActivityArticleRichTextService;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +23,7 @@ import static com.huangchao.acef.global.Common.getLanguage;
  * 本类为活动文章控制类
  */
 
-@Controller
+@RestController
 @RequestMapping("/aa")
 public class ActivityArticleRichTextOperation {
 
@@ -40,7 +39,6 @@ public class ActivityArticleRichTextOperation {
 
     //活动文章上传
     @RequestMapping(value = "/u", method = RequestMethod.POST)
-    @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> uploadActivityArticle(ActivityArticle aa, String[] activityTime, MultipartFile entryForm, MultipartFile poster, HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> result = new HashMap<>();
@@ -63,7 +61,6 @@ public class ActivityArticleRichTextOperation {
 
     //根据文章id删除活动文章
     @RequestMapping(value = "/d", method = RequestMethod.DELETE)
-    @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> deleteActivityArticle(String[] articleId) {
         Map<String, String> result = new HashMap<>();
@@ -82,7 +79,6 @@ public class ActivityArticleRichTextOperation {
 
     //根据文章id获取活动文章
     @GetMapping(value = "/go")
-    @ResponseBody
     public ActivityArticle getOneActivityArticle(String articleId) {
         //获取用户设置的语言
         try {
@@ -96,7 +92,7 @@ public class ActivityArticleRichTextOperation {
 
     //批量获取活动文章
     @RequestMapping(value = "/g", method = RequestMethod.GET)
-    @ResponseBody                                       //当前页号      一页的数据量     文章所属专题
+                                                           //当前页号      一页的数据量     文章所属专题
     public PageInfo<ActivityArticle> getActivityArticle(int currentPage, int pageSize, String part, HttpServletRequest request, String language) {
         //若未传来language，，则为后台管理查询
         if (language == null || language.equals("")) {
@@ -114,7 +110,6 @@ public class ActivityArticleRichTextOperation {
 
     //修改活动文章
     @RequestMapping(value = "/c", method = RequestMethod.PUT)
-    @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> changeActivityArticle(ActivityArticle aa, String[] activityTime, MultipartFile entryForm, MultipartFile poster, HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> result = new HashMap<>();

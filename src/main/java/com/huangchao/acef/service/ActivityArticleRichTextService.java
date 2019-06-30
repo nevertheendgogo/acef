@@ -91,8 +91,12 @@ public class ActivityArticleRichTextService {
     public ActivityArticle getOneActivityArticle(String articleId) {
         ActivityArticle activityArticle = activityArticleRichTextMapper.getOneActivityArticle(articleId);
         //使报名表、海报路径完整
-        activityArticle.setEntryFormUrl("http://"+IpAddress+activityArticle.getEntryFormUrl());
-        activityArticle.setPosterUrl("http://"+IpAddress+activityArticle.getPosterUrl());
+        if (activityArticle.getEntryFormUrl()!=null) {
+            activityArticle.setEntryFormUrl("http://"+IpAddress+activityArticle.getEntryFormUrl());
+        }
+        if (activityArticle.getPosterUrl()!=null) {
+            activityArticle.setPosterUrl("http://"+IpAddress+activityArticle.getPosterUrl());
+        }
         activityArticle.setDisplayTime(activityArticle.getDisplayTime().substring(0, 10));
         return activityArticle;
     }

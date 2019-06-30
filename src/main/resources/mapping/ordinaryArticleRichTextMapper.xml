@@ -26,7 +26,7 @@
 
     <!--根据文章id获取普通文章-->
     <select id="getOneOrdinaryArticle" resultType="OrdinaryArticle">
-        select * from ordinary_article where articleId=#{articleId}
+        select * from ordinary_article where articleId=#{articleId} limit 1
     </select>
 
     <!--批量获取普通文章-->

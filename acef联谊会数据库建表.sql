@@ -15,6 +15,7 @@ CREATE TABLE `ordinary_article` (
    PRIMARY KEY (`articleId`)
  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+ 
 select * from ordinary_article;
 
 #友情链接
@@ -50,6 +51,8 @@ create table activityArticle(
 )engine=InnoDB default charset=utf8mb4;
 
 select * from activityArticle;
+delete from activityArticle where entryFormUrl is null;
+delete from activityArticle where articleId='1234567891234';
 drop table activityArticle;
 
 

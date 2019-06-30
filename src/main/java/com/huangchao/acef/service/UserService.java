@@ -84,7 +84,8 @@ public class UserService {
                     else
                         result.put("result", "0");
 
-                }
+                }else
+                    result.put("result", "0");
 //                else {
 //                    //七天自动登录代码实现
 //                    //若为空，则在数据库查询，查询成功后保存到本次会话session中
@@ -93,7 +94,6 @@ public class UserService {
 //                        request.getSession().setAttribute("loginUserId", user.getId());
 //                        result.put("result", "1");
 //                    } else
-                result.put("result", "0");
 //                }
 
             } else {
@@ -142,8 +142,8 @@ public class UserService {
                         //将当前ip地址存入常用ip地址
                         ipAddress.add(IpUtils.getIpAddr(request));
                         logger.error("login:\nip地址：" + IpUtils.getIpAddr(request));
-                        //最多允许存储3个常用IP地址
-                        if (ipAddress.size() >= 4) {
+                        //最多允许存储4个常用IP地址
+                        if (ipAddress.size() >= 5) {
                             ipAddress.remove(ipAddress.toArray()[0]);
                         }
 
@@ -181,7 +181,7 @@ public class UserService {
             if (code < 1000)
                 code += 1000;
             //保存验证码到session
-            request.getSession().setAttribute("code", code + "");
+            request.getServletContext().setAttribute("code", code + "");
             String content = "<html><head></head><body><h1>请点击如下链接验证身份，验证成功后可返回登录界面登录</h1><h3>http://huangchaoweb.cn/acef/user/sui/"
                     + IpUtils.getIpAddr(request) + "/" + code + "</h3></body></html>";
             new EmailUtil(fromEmail, user.getEmailAccount(), code + "", authorizationCode).run("首次登录身份验证", content);
@@ -290,21 +290,19 @@ public class UserService {
     public String setCommonIp(String ipAddr,String code,HttpServletRequest request) {
 
         logger.error("setCommonIp:\nip地址：" + ipAddr);
-        if (code!=null&&request.getSession().getAttribute("code")!=null){
-            if (code.equals(request.getSession().getAttribute("code"))){
+        if (code!=null&&request.getServletContext().getAttribute("code")!=null){
+            if (code.equals(request.getServletContext().getAttribute("code"))){
                 //将当前ip地址存入常用ip地址
                 ipAddress.add(ipAddr);
-                //最多允许存储3个常用IP地址
-                if (ipAddress.size() >= 4) {
+                //最多允许存储4个常用IP地址
+                if (ipAddress.size() >= 5) {
                     ipAddress.remove(ipAddress.toArray()[0]);
                 }
                 //清除验证码信息
-                request.getSession().setAttribute("code",null);
+                request.getServletContext().setAttribute("code",null);
                 return "验证成功，可返回登录界面登录";
             }
-        }else
-            //非法破解，清除所有信息，保留黑名单实现
-            request.getSession().setMaxInactiveInterval(0);
+        }
         return "别试了，成功的几率很小，哈哈哈";
 
     }

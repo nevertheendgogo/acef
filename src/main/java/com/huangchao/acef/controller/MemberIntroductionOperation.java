@@ -7,13 +7,9 @@ import com.huangchao.acef.global.Common;
 import com.huangchao.acef.service.MemberIntroductionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,11 +22,12 @@ import java.util.UUID;
 import static com.huangchao.acef.global.Common.getLanguage;
 
 
+
 /**
  * 本类为成员信息控制类
  */
 
-@Controller
+@RestController
 @RequestMapping("/mi")
 public class MemberIntroductionOperation {
 
@@ -58,12 +55,10 @@ public class MemberIntroductionOperation {
 
     //成员信息上传
     @RequestMapping(value = "/u", method = RequestMethod.POST)
-    @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, Object> uploadMemberIntroduction(MemberIntroduction memberIntroduction, MultipartFile picture) {
         //用于返回保存结果
         Map<String, Object> result = new HashMap<>();
-
         try {
             if (picture != null && !picture.isEmpty()) {
                 //图片处理
@@ -85,7 +80,6 @@ public class MemberIntroductionOperation {
 
     //后台管理成员信息删除
     @RequestMapping(value = "/d", method = RequestMethod.DELETE)
-    @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> deleteMemberIntroduction(int[] idList, @RequestParam("imgPaths") String[] imgPaths) {
         //用于返回结果
@@ -113,7 +107,7 @@ public class MemberIntroductionOperation {
 
     //前端展示成员信息获取
     @RequestMapping(value = "/gaf", method = RequestMethod.GET)
-    @ResponseBody                                                            //当前页号  一页的数据量
+                                                                            //当前页号  一页的数据量
     public PageInfo<GetMemberIntroduction> getAllShowMemberIntroduction(int currentPage, int pageSize, HttpServletRequest request) {
         String language = getLanguage(request);
         return memberIntroductionService.getAllShowMemberIntroduction(language != null ? language : defaultLanguage, currentPage, pageSize);
@@ -121,21 +115,19 @@ public class MemberIntroductionOperation {
 
     //后台管理展示成员信息获取
     @RequestMapping(value = "/gab", method = RequestMethod.GET)
-    @ResponseBody                                                           //当前页号   一页的数据量
+                                                                       //当前页号   一页的数据量
     public PageInfo<MemberIntroduction> getAllManageMemberIntroduction(int currentPage, int pageSize) {
         return memberIntroductionService.getAllManageMemberIntroduction(currentPage, pageSize);
     }
 
     //后台管理单个成员信息获取
     @RequestMapping(value = "/gob", method = RequestMethod.GET)
-    @ResponseBody
     public MemberIntroduction getOneManageMemberIntroduction(int id) {
         return memberIntroductionService.getOneManageMemberIntroduction(id);
     }
 
     //后台管理成员信息修改
     @RequestMapping(value = "/c", method = RequestMethod.PUT)
-    @ResponseBody
     @Transactional(rollbackFor = {Exception.class}) //所有异常都回滚
     public Map<String, String> changeMemberIntroduction(MemberIntroduction memberIntroduction, MultipartFile picture) {
         //用于返回结果

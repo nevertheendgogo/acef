@@ -24,18 +24,18 @@
 
     <!--删除轮播图-->
     <delete id="deleteSlideshow">
-        delete from picture where id =#{id}
+        delete from picture where id =#{id} limit 1
     </delete>
 
     <!--删除中断富文本文章上传的图片-->
     <delete id="deleteRichTextPicture">
-        delete from rich_text_picture where articleId =#{articleId}
+        delete from rich_text_picture where articleId =#{articleId} limit 1
     </delete>
     <!--***************************************************************************  查  *********************************************************************************-->
 
     <!--查找富文本文章上传的图片-->
     <select id="getRiceTextPictures" resultType="String">
-        select url from rich_text_picture where articleId=#{articleId}
+        select url from rich_text_picture where articleId=#{articleId} limit 1
     </select>
 
     <!--轮播图/协会介绍链接获取-->
@@ -47,7 +47,7 @@
 
     <!--更新协会介绍图片-->
     <update id="updateAssociationIntroduction">
-        update picture set url=#{url} where id=#{id}
+        update picture set url=#{url} where id=#{id} limit 1
     </update>
 
 </mapper>
