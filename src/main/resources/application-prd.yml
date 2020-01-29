@@ -21,4 +21,4 @@ config:
   #文件保存根路径
   filePath: /usr/local/all_project_file/acef/
   #服务器资源访问前缀
-  urlPrefix: http://huangchaoweb.cn/
+  urlPrefix: http://huangchaoweb.cn/file/
