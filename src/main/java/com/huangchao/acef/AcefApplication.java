@@ -1,6 +1,8 @@
 package com.huangchao.acef;
 
+import com.huangchao.acef.utils.SystemConfig;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,20 +26,16 @@ public class AcefApplication extends SpringBootServletInitializer {
         SpringApplication.run(AcefApplication.class, args);
     }
 
-    //最大图片大小
-    @Value("${maxFileSize}")
-    String maxFileSize;
-    //最大请求大小
-    @Value("${maxRequestSize}")
-    String maxRequestSize;
+    @Autowired
+    private SystemConfig systemConfig;
 
     @Bean
     public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
         //文件最大
-        factory.setMaxFileSize(maxFileSize); //KB,MB
+        factory.setMaxFileSize(systemConfig.maxFileSize); //KB,MB
         /// 设置总上传数据总大小
-        factory.setMaxRequestSize(maxRequestSize);
+        factory.setMaxRequestSize(systemConfig.maxRequestSize);
         return factory.createMultipartConfig();
     }
 }

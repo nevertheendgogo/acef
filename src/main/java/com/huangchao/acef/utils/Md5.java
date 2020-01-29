@@ -26,7 +26,7 @@ public class Md5 {
             byteArray[i] = (byte) charArray[i];
         byte[] md5Bytes = md5.digest(byteArray);
 
-        StringBuffer hexValue = new StringBuffer();
+        StringBuilder hexValue = new StringBuilder();
         for (int i = 0; i < md5Bytes.length; i++) {
             int val = ((int) md5Bytes[i]) & 0xff;
             if (val < 16) {
@@ -38,7 +38,7 @@ public class Md5 {
         return "i" + hexValue.toString() + "l";
     }
 
-//    public static void main(String[] args) {
-//        System.out.println(Md5.encode("134112hhhbbb"));
-//    }
+    public static void main(String[] args) {
+        System.out.println(Md5.encode("2a10d9cb88ee3870d0b577cc07254b75"));
+    }
 }

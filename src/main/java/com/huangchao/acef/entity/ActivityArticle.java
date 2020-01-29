@@ -1,6 +1,13 @@
 package com.huangchao.acef.entity;
 
+import lombok.*;
+import lombok.experimental.Accessors;
 
+@Data
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+@NoArgsConstructor//无参构造器
+@AllArgsConstructor//全参构造器
 public class ActivityArticle {
     private String articleId;
     private String part;//文章所属专题
@@ -14,126 +21,5 @@ public class ActivityArticle {
     private String entryFormUrl;//报名表
     private String posterUrl;//海报
 
-    public String getArticleId() {
-        return articleId;
-    }
-
-    @Override
-    public String toString() {
-        return "ActivityArticle{" +
-                "articleId='" + articleId + '\'' +
-                ", part='" + part + '\'' +
-                ", language='" + language + '\'' +
-                ", title='" + title + '\'' +
-                ", author='" + author + '\'' +
-                ", displayTime='" + displayTime + '\'' +
-                ", activityStartTime='" + activityStartTime + '\'' +
-                ", activityEndTime='" + activityEndTime + '\'' +
-                ", content='" + content + '\'' +
-                ", entryFormUrl='" + entryFormUrl + '\'' +
-                ", posterUrl='" + posterUrl + '\'' +
-                '}';
-    }
-
-    public void setArticleId(String articleId) {
-        this.articleId = articleId;
-    }
-
-    public String getPart() {
-        return part;
-    }
-
-    public void setPart(String part) {
-        this.part = part;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public String getDisplayTime() {
-        return displayTime;
-    }
-
-    public void setDisplayTime(String displayTime) {
-        this.displayTime = displayTime;
-    }
-
-    public String getActivityStartTime() {
-        return activityStartTime;
-    }
-
-    public void setActivityStartTime(String activityStartTime) {
-        this.activityStartTime = activityStartTime;
-    }
-
-    public String getActivityEndTime() {
-        return activityEndTime;
-    }
-
-    public void setActivityEndTime(String activityEndTime) {
-        this.activityEndTime = activityEndTime;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public String getEntryFormUrl() {
-        return entryFormUrl;
-    }
-
-    public void setEntryFormUrl(String entryFormUrl) {
-        this.entryFormUrl = entryFormUrl;
-    }
-
-    public String getPosterUrl() {
-        return posterUrl;
-    }
-
-    public void setPosterUrl(String posterUrl) {
-        this.posterUrl = posterUrl;
-    }
-
-    public ActivityArticle(String articleId, String part, String language, String title, String author, String displayTime, String activityStartTime, String activityEndTime, String content, String entryFormUrl, String posterUrl) {
-        this.articleId = articleId;
-        this.part = part;
-        this.language = language;
-        this.title = title;
-        this.author = author;
-        this.displayTime = displayTime;
-        this.activityStartTime = activityStartTime;
-        this.activityEndTime = activityEndTime;
-        this.content = content;
-        this.entryFormUrl = entryFormUrl;
-        this.posterUrl = posterUrl;
-    }
-
-    public ActivityArticle() {
-    }
 }
 

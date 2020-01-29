@@ -1,38 +1,18 @@
 package com.huangchao.acef.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+
+@Data
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+@NoArgsConstructor//无参构造器
+@AllArgsConstructor//全参构造器
 public class Slideshow {
     private int id;
     private String url;
 
-    @Override
-    public String toString() {
-        return "Slideshow{" +
-                "id=" + id +
-                ", url='" + url + '\'' +
-                '}';
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public Slideshow(int id, String url) {
-        this.id = id;
-        this.url = url;
-    }
-
-    public Slideshow() {
-    }
 }

@@ -1,53 +1,23 @@
 package com.huangchao.acef.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+
 /**
  * 本类为友情链接实体类
  */
+@Data
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+@NoArgsConstructor//无参构造器
+@AllArgsConstructor//全参构造器
 public class FriendlyLink {
     private String id;
     private String description;
     private String link;
     private String imgPath;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getLink() {
-        return link;
-    }
-
-    public void setLink(String link) {
-        this.link = link;
-    }
-
-    public String getImgPath() {
-        return imgPath;
-    }
-
-    public void setImgPath(String imgPath) {
-        this.imgPath = imgPath;
-    }
-
-    public FriendlyLink() {
-    }
-
-    public FriendlyLink(String id, String description, String link, String imgPath) {
-        this.id = id;
-        this.description = description;
-        this.link = link;
-        this.imgPath = imgPath;
-    }
 }

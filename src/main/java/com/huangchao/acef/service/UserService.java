@@ -3,13 +3,9 @@ package com.huangchao.acef.service;
 import ch.qos.logback.classic.Logger;
 import com.huangchao.acef.dao.UserMapper;
 import com.huangchao.acef.entity.User;
-import com.huangchao.acef.utils.CookieUtil;
-import com.huangchao.acef.utils.EmailUtil;
-import com.huangchao.acef.utils.IpUtils;
-import com.huangchao.acef.utils.Md5;
+import com.huangchao.acef.utils.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
@@ -30,13 +26,8 @@ public class UserService {
     //注入映射用户信息相关数据库操作类
     @Autowired
     private UserMapper mapper;
-    //统一cookie存活基准时间
-    @Value("${survivalTime}")
-    private int survivalTime;
-    @Value("${fromEmail}")
-    String fromEmail;// 发件人电子邮箱
-    @Value("${authorizationCode}")
-    String authorizationCode;// 邮箱第三方登录授权码
+    @Autowired
+    private SystemConfig systemConfig;
     //常用ip地址
     private static Set<String> ipAddress = new HashSet<>();
     private final static Logger logger = (Logger) LoggerFactory.getLogger(UserService.class);
@@ -61,7 +52,8 @@ public class UserService {
         //用于返回查询结果,成功则返回1和昵称
         Map<String, String> result = new HashMap<>();
 
-//        logger.error("isLogin:\n");
+        logger.info("ip地址：" + IpUtils.getIpAddr(request));
+        logger.info("ip地址是否为常用ip地址：" + ipAddress.contains(IpUtils.getIpAddr(request)));
         if (ipAddress.contains(IpUtils.getIpAddr(request))) {
 
             //获取从客户端携带过来的cookie
@@ -69,22 +61,25 @@ public class UserService {
             //从cookie的数组中查找指定名称的cookie
             Cookie cookie = CookieUtil.findCookie(cookies, "loginUserId");
 
-//            logger.error("ip地址：" + IpUtils.getIpAddr(request)+
-//                    "\ncookie里面的loginUserId："+cookie.getValue()+
-//                    "\nSession里面的loginUserId:"+loginUserId+"\n\n");
+            logger.info("\nip地址：" + IpUtils.getIpAddr(request) +
+                    "\ncookie里面的loginUserId：" + cookie.getValue() +
+                    "\nSession里面的loginUserId:" + request.getSession().getAttribute("loginUserId") + "\n\n");
 
             //若存在
             if (cookie != null) {
                 //如果服务器本次会话保存有登陆状态，判断loginUserId是否和cookie中的id一致
                 String loginUserId = (String) request.getSession().getAttribute("loginUserId");
                 if (loginUserId != null) {
+                    logger.info("cookie登陆有效\n");
                     //若一致则cookie登陆有效
-                    if (loginUserId.equals(cookie.getValue()))
+                    if (loginUserId.equals(cookie.getValue())) {
+                        logger.info("cookie登陆有效\n");
+
                         result.put("result", "1");
-                    else
+                    } else
                         result.put("result", "0");
 
-                }else
+                } else
                     result.put("result", "0");
 //                else {
 //                    //七天自动登录代码实现
@@ -136,12 +131,12 @@ public class UserService {
                         //本次会话保存登录状态
                         request.getSession().setAttribute("loginUserId", id);
                         //存储cookie,完成记住用户登录状态功能:
-                        CookieUtil.saveCookie("loginUserId", id, response, survivalTime);
+                        CookieUtil.saveCookie("loginUserId", id, response, systemConfig.survivalTime);
                         //登录成功后把可登录次数重置
                         request.getSession().setAttribute("times", 5);
                         //将当前ip地址存入常用ip地址
                         ipAddress.add(IpUtils.getIpAddr(request));
-                        logger.error("login:\nip地址：" + IpUtils.getIpAddr(request));
+                        logger.info("login:\nip地址：" + IpUtils.getIpAddr(request));
                         //最多允许存储4个常用IP地址
                         if (ipAddress.size() >= 5) {
                             ipAddress.remove(ipAddress.toArray()[0]);
@@ -183,10 +178,9 @@ public class UserService {
             //保存验证码到session
             request.getServletContext().setAttribute("code", code + "");
             String content = "<html><head></head><body><h1>请点击如下链接验证身份，验证成功后可返回登录界面登录</h1><h3>http://huangchaoweb.cn/acef/user/sui/"
-                    + IpUtils.getIpAddr(request) + "/" + code + "</h3></body></html>";
-            new EmailUtil(fromEmail, user.getEmailAccount(), code + "", authorizationCode).run("首次登录身份验证", content);
+                    + IpUtils.getIpAddr(request) + "/" + code + "/" + user.getEmailAccount() + "</h3></body></html>";
+            new EmailUtil(systemConfig.fromEmail, user.getEmailAccount(), systemConfig.authorizationCode).run("首次登录身份验证", content);
             result.put("result", "6");
-
         }
 
         return result;
@@ -211,7 +205,7 @@ public class UserService {
             //发送验证码
             //设置邮件内容
             String content = "<html><head></head><body><h1>验证码如下</h1><h3>" + code + "</h3></body></html>";
-            int result1 = new EmailUtil(fromEmail, emailAccount, code + "", authorizationCode).run("密码修改验证码", content);
+            int result1 = new EmailUtil(systemConfig.fromEmail, emailAccount, systemConfig.authorizationCode).run("密码修改验证码", content);
             //保存当前时间戳到session
             request.getSession().setAttribute(emailAccount, code);
             //设置可以提交的次数
@@ -221,7 +215,7 @@ public class UserService {
 
             //保存发送结果
             result.put("result", result1 + "");
-        }else//上次验证码时间未过
+        } else//上次验证码时间未过
             result.put("result", "2");
 
         return result;
@@ -287,11 +281,15 @@ public class UserService {
     }
 
     //设置常用IP地址
-    public String setCommonIp(String ipAddr,String code,HttpServletRequest request) {
+    public String setCommonIp(String ipAddr, String code, String loginUser, HttpServletRequest request, HttpServletResponse response) {
 
         logger.error("setCommonIp:\nip地址：" + ipAddr);
-        if (code!=null&&request.getServletContext().getAttribute("code")!=null){
-            if (code.equals(request.getServletContext().getAttribute("code"))){
+//        logger.error("code:\nip地址：" + code);
+//        logger.error("保存的code:\nip地址：" + request.getServletContext().getAttribute("code"));
+        if (code != null && request.getServletContext().getAttribute("code") != null) {
+//            logger.error(String.valueOf(code.equals(request.getServletContext().getAttribute("code"))));
+
+            if (code.equals(request.getServletContext().getAttribute("code"))) {
                 //将当前ip地址存入常用ip地址
                 ipAddress.add(ipAddr);
                 //最多允许存储4个常用IP地址
@@ -299,13 +297,27 @@ public class UserService {
                     ipAddress.remove(ipAddress.toArray()[0]);
                 }
                 //清除验证码信息
-                request.getServletContext().setAttribute("code",null);
-                return "验证成功，可返回登录界面登录";
+                request.getServletContext().setAttribute("code", null);
+                //身份确认
+                String id = findIdByEmailAccount(loginUser);
+                if (id != null) {
+                    //存储cookie,完成记住用户登录状态功能:
+                    CookieUtil.saveCookie("loginUserId", id, response, systemConfig.survivalTime);
+                    //登录成功后把可登录次数重置
+                    request.getSession().setAttribute("times", 5);
+                    request.getSession().setAttribute("loginUserId", id);
+                    //将当前ip地址存入常用ip地址
+                    ipAddress.add(IpUtils.getIpAddr(request));
+                    logger.error("login:\nip地址：" + IpUtils.getIpAddr(request));
+                    //最多允许存储4个常用IP地址
+                    if (ipAddress.size() >= 5) {
+                        ipAddress.remove(ipAddress.toArray()[0]);
+                    }
+                }
+
+//                return "<html><head></head><body><br><h2><a href=\"http://huangchaoweb.cn/back/#/dashboard\">验证成功，可点击以下此处进入后台管理系统</a></h2></body></html>";
             }
         }
-        return "别试了，成功的几率很小，哈哈哈";
-
+        return "redirect:http://huangchaoweb.cn/back/";
     }
-
-
 }

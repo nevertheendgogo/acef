@@ -25,41 +25,21 @@ public class FeedbackOperation {
     private FeedbackService feedbackService;
 
     //意见反馈上传接口
-    @RequestMapping(value = "/u",method = RequestMethod.POST)
+    @RequestMapping(value = "/u", method = RequestMethod.POST)
     public Map<String, String> uploadFeedback(Feedback feedback) {
-        //用于保存保存结果
-        Map<String, String> result = new HashMap<>();
-        try {
-            feedbackService.setFeedback(feedback);
-            result.put("result", "1");
-
-        } catch (Exception e) {
-            result.put("result", "0");
-            e.printStackTrace();
-        }
-        return result;
+        return feedbackService.setFeedback(feedback);
     }
 
     //后台意见反馈信息批量删除
-    @RequestMapping(value = "/d",method = RequestMethod.DELETE)
+    @RequestMapping(value = "/d", method = RequestMethod.DELETE)
     public Map<String, String> deleteFeedback(int[] idList) {
-        //用于返回结果
-        Map<String, String> result = new HashMap<>();
-        try {
-            feedbackService.deleteFeedback(idList);
-            result.put("result", "1");
-        } catch (Exception e) {
-            result.put("result", "0");
-            e.printStackTrace();
-        }
-        return result;
+        return feedbackService.deleteFeedback(idList);
     }
 
     //意见反馈信息获取接口
-    @RequestMapping(value = "/g",method = RequestMethod.GET)
+    @RequestMapping(value = "/g", method = RequestMethod.GET)
     public PageInfo<Feedback> getFeedback(int currentPage, int pageSize) {
         return feedbackService.getFeedback(currentPage, pageSize);
-
     }
 
 }
