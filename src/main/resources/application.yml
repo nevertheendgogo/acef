@@ -65,6 +65,8 @@ config:
   errorEmail: 1711591690@qq.com
   #邮箱第三方登录授权码
   authorizationCode: 134112hhhbbbk
+  #要生成的文件夹
+  folder: ['aaip','log','aip','ef','fl','img','mi','rt','ssoai']
 
 logging:
   level:
